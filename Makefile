@@ -1,0 +1,8 @@
+
+install-terraform:
+	wget https://releases.hashicorp.com/terraform/1.14.2/terraform_1.14.2_linux_amd64.zip
+	unzip terraform_1.14.2_linux_amd64.zip && rm terraform_1.14.2_linux_amd64.zip && rm LICENSE.txt
+	sudo mv terraform /usr/local/bin/terraform && sudo chown root:root /usr/local/bin/terraform
+
+destroy-dev-vm:
+	terraform destroy -target proxmox_virtual_environment_vm.ubuntu_dev_vm -target proxmox_virtual_environment_file.user_data_cloud_config
