@@ -4,3 +4,4 @@ secrets.auto.tfvar
 terraform.tfstate
 terraform.tfstate.backup
 secrets.auto.tfvars
+ansible/*

@@ -107,7 +107,7 @@ resource "proxmox_virtual_environment_vm" "ubuntu_dev_vm" {
 
     command = <<-EOF
       echo "Stopping VM before destroy..."
-      ssh root@${self.ipv4_addresses[1][0]} "qm stop ${self.vm_id}"
+      qm stop ${self.vm_id}
       sleep 5
       echo "VM stopped, proceeding with destroy"
     EOF
@@ -122,4 +122,36 @@ resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
   url          = var.ubuntu_base_img_addr
   # need to rename the file to *.qcow2 to indicate the actual file format for import
   file_name = "noble-server-cloudimg-amd64.qcow2"
+}
+
+resource "local_file" "ansible_inventory_dev_vm" {
+  content = templatefile("${path.module}/inventory.tftpl", {
+    host_ip = proxmox_virtual_environment_vm.ubuntu_dev_vm.ipv4_addresses[1][0]
+  })
+
+  filename = "${path.module}/../../ansible/inventory/dev-vm.yml"
+}
+
+resource "local_file" "ansible_playbook_dev_vm" {
+  content = templatefile("${path.module}/playbook.tftpl", {
+    tailscale_auth_key = var.tailscale_auth_key
+    username           = var.username
+  })
+
+  filename = "${path.module}/../../ansible/playbooks/dev-vm.yml"
+}
+
+resource "null_resource" "ansible_provision_dev_vm" {
+  depends_on = [
+    local_file.ansible_inventory_dev_vm,
+    local_file.ansible_playbook_dev_vm,
+    proxmox_virtual_environment_vm.ubuntu_dev_vm,
+  ]
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      ansible-playbook -i ${local_file.ansible_inventory_dev_vm.filename} ${local_file.ansible_playbook_dev_vm.filename} \
+      --ssh-extra-args='-o StrictHostKeyChecking=no' --ask-become-pass
+    EOT
+  }
 }

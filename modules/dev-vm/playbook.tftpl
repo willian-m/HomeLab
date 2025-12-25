@@ -1,0 +1,125 @@
+---
+- name: Setup VM with Tailscale
+  hosts: dev_vm
+  become: yes
+
+  vars:
+    tailscale_auth_key: "${tailscale_auth_key}"
+    target_user: "${username}"
+
+  tasks:
+    # Update package cache
+    - name: Update apt cache (Debian/Ubuntu)
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Update yum cache (RedHat/CentOS)
+      yum:
+        update_cache: yes
+      when: ansible_os_family == "RedHat"
+
+    # Install Tailscale
+    - name: Download Tailscale install script
+      get_url:
+        url: https://tailscale.com/install.sh
+        dest: /tmp/tailscale-install.sh
+        mode: '0755'
+
+    - name: Install Tailscale using official script
+      shell: /tmp/tailscale-install.sh
+      args:
+        creates: /usr/bin/tailscale
+
+    - name: Enable and start Tailscale service
+      systemd:
+        name: tailscaled
+        enabled: yes
+        state: started
+
+    - name: Check if Tailscale is already connected
+      command: tailscale status
+      register: tailscale_status
+      changed_when: false
+      failed_when: false
+
+    - name: Connect to Tailscale network
+      command: "tailscale up --authkey={{ tailscale_auth_key }}"
+      when: 
+        - tailscale_auth_key | length > 0
+        - tailscale_status.rc != 0
+
+
+- name: Setup oh-my-zsh for user
+  hosts: dev_vm
+  become: yes
+
+  vars:
+    target_user: "${username}"
+
+  tasks:
+    - name: Install Zsh
+      ansible.builtin.package:
+        name: zsh
+        state: present
+
+    - name: Change default shell to Zsh for user
+      ansible.builtin.user:
+        name: "{{ target_user }}"
+        shell: /usr/bin/zsh
+
+    - name: Install Oh My Zsh
+      ansible.builtin.shell: |
+        RUNZSH=no CHSH=no KEEP_ZSHRC=yes sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" --unattended
+      args:
+        creates: "/home/{{ target_user }}/.oh-my-zsh"
+      become_user: "{{ target_user }}"
+
+    - name: Change Zsh theme to 'ys'
+      ansible.builtin.replace:
+        path: "/home/{{ target_user }}/.zshrc"
+        regexp: 'ZSH_THEME=".*"'
+        replace: 'ZSH_THEME="ys"'
+
+- name: Install mamba package manager
+  hosts: dev_vm
+  become: yes
+
+  vars:
+    target_user: "${username}"
+
+  tasks:
+    - name: Install dependencies for mamba
+      ansible.builtin.package:
+        name:
+          - curl
+        state: present
+
+    - name: Install mamba
+      ansible.builtin.shell: |
+        curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" && \
+        bash Miniforge3-$(uname)-$(uname -m).sh -b
+
+    - name: Initialize mamba for zsh
+      ansible.builtin.shell: |
+        ~/miniforge3/bin/conda init zsh
+      become_user: "{{ target_user }}"
+
+- name: Install development tools
+  hosts: dev_vm
+  become: yes
+
+  tasks:
+    - name: Install development packages
+      ansible.builtin.package:
+        name:
+          - git
+          - vim
+          - tree
+          - build-essential
+          - curl
+          - wget
+          - unzip
+          - clang
+        state: latest # Ensures the latest version is installed
+
