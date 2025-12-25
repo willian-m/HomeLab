@@ -49,4 +49,5 @@ module "dev_vm" {
   public_key_path      = var.public_key_path
   net_bridge_interface = var.dev_vm_net_bridge_interface
   proxmox_host         = var.proxmox_host
+  tailscale_auth_key   = var.tailscale_auth_key
 }

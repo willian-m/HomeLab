@@ -52,3 +52,9 @@ variable "dev_vm_ubuntu_base_img_addr" {
   type        = string
   sensitive   = false
 }
+
+variable "tailscale_auth_key" {
+  description = "Tailscale auth key used to authenticate the VM into the Tailscale network"
+  type        = string
+  sensitive   = true
+}
