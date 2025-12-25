@@ -5,7 +5,7 @@ install-terraform:
 	sudo mv terraform /usr/local/bin/terraform && sudo chown root:root /usr/local/bin/terraform
 
 destroy-dev-vm:
-	terraform destroy -target proxmox_virtual_environment_vm.ubuntu_dev_vm -target proxmox_virtual_environment_file.user_data_cloud_config
+	terraform destroy -target module.dev_vm.proxmox_virtual_environment_vm.ubuntu_dev_vm -target module.dev_vm.proxmox_virtual_environment_file.user_data_cloud_config
 
 init:
 	terraform init

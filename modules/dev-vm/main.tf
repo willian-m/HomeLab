@@ -140,6 +140,18 @@ resource "proxmox_virtual_environment_vm" "ubuntu_dev_vm" {
     bridge = "vmbr0"
   }
 
+
+  provisioner "local-exec" {
+    when = destroy
+
+    command = <<-EOF
+      echo "Stopping VM before destroy..."
+      ssh root@${self.ipv4_addresses[1][0]} "qm stop ${self.vm_id}"
+      sleep 5
+      echo "VM stopped, proceeding with destroy"
+    EOF
+  }
+
 }
 
 resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
