@@ -46,6 +46,7 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
         shell: /bin/bash
         ssh_authorized_keys:
           - ${trimspace(data.local_file.ssh_public_key.content)}
+        lock_passwd: false
     apt:
       preserve_sources_list: true
       sources:
@@ -57,6 +58,7 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
     mounts:
       - [ 'dev-projects', '/home/${var.username}/dev-projects', 'virtiofs', 'rw,default', '0', '0' ]
     package_update: true
+    ssh_pwauth: false
     packages:
       - containerd.io
       - curl
