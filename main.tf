@@ -20,9 +20,22 @@ provider "proxmox" {
   endpoint = var.proxmox_endpoint
   api_token = var.proxmox_api_token
   insecure = false
+  # alias = "proxmox"
 
   ssh {
     agent = true
     username = "root"
   }
+}
+
+module "dev_vm" {
+  source = "./modules/dev-vm"
+
+  username             = var.dev_vm_username
+  user_uid             = var.dev_vm_user_uid
+  ubuntu_base_img_addr = var.dev_vm_ubuntu_base_img_addr
+  vm_password          = var.dev_vm_password
+  public_key_path      = var.public_key_path
+  net_bridge_interface = var.dev_vm_net_bridge_interface
+  proxmox_host         = var.proxmox_host
 }
