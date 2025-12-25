@@ -8,6 +8,7 @@ destroy-dev-vm:
 	terraform destroy -target module.dev_vm.proxmox_virtual_environment_vm.ubuntu_dev_vm -target module.dev_vm.proxmox_virtual_environment_file.user_data_cloud_config
 
 init:
+	ln -sf ./git_hooks/pre-commit .git/hooks/pre-commit
 	terraform init
 	terraform get
 
