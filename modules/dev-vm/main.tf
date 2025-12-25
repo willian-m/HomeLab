@@ -2,6 +2,29 @@ data "local_file" "ssh_public_key" {
   filename = "${var.public_key_path}"
 }
 
+terraform {
+    required_providers {
+        proxmox = {
+          source  = "bpg/proxmox"
+        }
+    }
+}
+
+resource "null_resource" "create_users" {
+  provisioner "local-exec" {
+    command = <<-EOT
+      ssh root@${var.proxmox_host} bash << 'ENDSSH'
+
+        # --- Create user for dev image
+        current_uid=$(id -u ${var.username})
+        if [[ $current_uid != ${var.user_uid} ]]; then
+          adduser --system --no-create-home --uid ${var.user_uid} ${var.username}
+        fi
+      ENDSSH
+    EOT
+  }
+}
+
 resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
   content_type = "snippets"
   datastore_id = "local"
@@ -14,9 +37,9 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
     timezone: America/Sao_Paulo
     users:
       - user:
-        name: ${var.dev_username}
-        uid: ${var.dev_user_uid}
-        passwd: ${var.dev_vm_password}
+        name: ${var.username}
+        uid: ${var.user_uid}
+        passwd: ${var.vm_password}
         groups:
           - docker
           - sudo
@@ -32,7 +55,7 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
           # If key expires and needs to be updated, update the keyid above with:
           # curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --show-keys --fingerprint --with-colons | awk -F: '/^fpr:/ { print $10 }'
     mounts:
-      - [ 'dev-projects', '/home/${var.dev_username}/dev-projects', 'virtiofs', 'rw,default', '0', '0' ]
+      - [ 'dev-projects', '/home/${var.username}/dev-projects', 'virtiofs', 'rw,default', '0', '0' ]
     package_update: true
     packages:
       - containerd.io
@@ -49,7 +72,7 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
     runcmd:
       - systemctl enable qemu-guest-agent
       - systemctl start qemu-guest-agent
-      - chown -R ${var.dev_username}:${var.dev_username} /home/${var.dev_username}/dev-projects
+      - chown -R ${var.username}:${var.username} /home/${var.username}/dev-projects
       - echo "done" > /tmp/cloud-config.done
     ENDOFFILE
     file_name = "user-data-ubuntu-dev-vm-cloud-config.yaml"
@@ -62,6 +85,10 @@ resource "proxmox_virtual_environment_vm" "ubuntu_dev_vm" {
   node_name = "pve"
   description = "Machine used for dev purposes. Managed by Terraform"
   tags        = ["terraform", "ubuntu", "dev"]
+
+  depends_on = [
+    null_resource.create_users,
+  ]
 
   agent {
     enabled = true
@@ -122,8 +149,4 @@ resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
   url          = var.ubuntu_base_img_addr
   # need to rename the file to *.qcow2 to indicate the actual file format for import
   file_name = "noble-server-cloudimg-amd64.qcow2"
-}
-
-output "vm_ipv4_address" {
-  value = proxmox_virtual_environment_vm.ubuntu_dev_vm.ipv4_addresses[1][0]
 }
