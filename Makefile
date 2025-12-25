@@ -6,3 +6,16 @@ install-terraform:
 
 destroy-dev-vm:
 	terraform destroy -target proxmox_virtual_environment_vm.ubuntu_dev_vm -target proxmox_virtual_environment_file.user_data_cloud_config
+
+init:
+	terraform init
+	terraform get
+
+plan:
+	terraform plan
+
+apply:
+	terraform apply -auto-approve
+
+
+
