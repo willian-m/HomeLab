@@ -31,52 +31,12 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
   node_name    = "pve"
 
   source_raw {
-    data      = <<-ENDOFFILE
-    #cloud-config
-    hostname: ubuntu-dev-vm
-    timezone: America/Sao_Paulo
-    users:
-      - user:
-        name: ${var.username}
-        uid: ${var.user_uid}
-        passwd: ${var.vm_password}
-        groups:
-          - docker
-          - sudo
-        shell: /bin/bash
-        ssh_authorized_keys:
-          - ${trimspace(data.local_file.ssh_public_key.content)}
-        lock_passwd: false
-    apt:
-      preserve_sources_list: true
-      sources:
-        docker.list:
-          source: deb [arch=amd64] https://download.docker.com/linux/ubuntu $RELEASE stable
-          keyid: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
-          # If key expires and needs to be updated, update the keyid above with:
-          # curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --show-keys --fingerprint --with-colons | awk -F: '/^fpr:/ { print $10 }'
-    mounts:
-      - [ 'dev-projects', '/home/${var.username}/dev-projects', 'virtiofs', 'rw,default', '0', '0' ]
-    package_update: true
-    ssh_pwauth: false
-    packages:
-      - containerd.io
-      - curl
-      - docker-buildx-plugin
-      - docker-ce
-      - docker-ce-cli
-      - docker-compose-plugin
-      - net-tools
-      - qemu-guest-agent
-      - vim
-      - virtiofsd
-      - zsh
-    runcmd:
-      - systemctl enable qemu-guest-agent
-      - systemctl start qemu-guest-agent
-      - chown -R ${var.username}:${var.username} /home/${var.username}/dev-projects
-      - echo "done" > /tmp/cloud-config.done
-    ENDOFFILE
+    data      = templatefile("${path.module}/cloud-init.tftpl", {
+      username            = var.username
+      user_uid            = var.user_uid
+      vm_password         = var.vm_password
+      ssh_authorized_key  = data.local_file.ssh_public_key.content
+    })
     file_name = "user-data-ubuntu-dev-vm-cloud-config.yaml"
   }
 
