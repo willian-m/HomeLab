@@ -26,6 +26,7 @@ mounts:
 package_update: true
 ssh_pwauth: false
 packages:
+  - awk
   - containerd.io
   - curl
   - docker-buildx-plugin
@@ -40,5 +41,6 @@ packages:
 runcmd:
   - systemctl enable qemu-guest-agent
   - systemctl start qemu-guest-agent
+  - chown ${username}:${username} /home/${username}
   - chown -R ${username}:${username} /home/${username}/dev-projects
   - echo "done" > /tmp/cloud-config.done
