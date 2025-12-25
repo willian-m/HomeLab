@@ -1,13 +1,13 @@
 data "local_file" "ssh_public_key" {
-  filename = "${var.public_key_path}"
+  filename = var.public_key_path
 }
 
 terraform {
-    required_providers {
-        proxmox = {
-          source  = "bpg/proxmox"
-        }
+  required_providers {
+    proxmox = {
+      source = "bpg/proxmox"
     }
+  }
 }
 
 resource "null_resource" "create_users" {
@@ -31,7 +31,7 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
   node_name    = "pve"
 
   source_raw {
-    data = <<-ENDOFFILE
+    data      = <<-ENDOFFILE
     #cloud-config
     hostname: ubuntu-dev-vm
     timezone: America/Sao_Paulo
@@ -83,8 +83,8 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
 }
 
 resource "proxmox_virtual_environment_vm" "ubuntu_dev_vm" {
-  name      = "ubuntu-dev-vm"
-  node_name = "pve"
+  name        = "ubuntu-dev-vm"
+  node_name   = "pve"
   description = "Machine used for dev purposes. Managed by Terraform"
   tags        = ["terraform", "ubuntu", "dev"]
 
@@ -116,10 +116,10 @@ resource "proxmox_virtual_environment_vm" "ubuntu_dev_vm" {
 
   # Mount dev-projects 
   virtiofs {
-    mapping = "dev-projects"
-    cache = "always"
-    direct_io = true
-    expose_acl = true
+    mapping      = "dev-projects"
+    cache        = "always"
+    direct_io    = true
+    expose_acl   = true
     expose_xattr = true
   }
 

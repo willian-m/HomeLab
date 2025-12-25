@@ -7,23 +7,23 @@
 # --------------------
 
 terraform {
-    required_providers {
-        proxmox = {
-          source  = "bpg/proxmox"
-          version = ">= 0.69.0"
-        }
+  required_providers {
+    proxmox = {
+      source  = "bpg/proxmox"
+      version = ">= 0.69.0"
     }
+  }
 }
 
 # --- Configure access of terraform to proxmox
 provider "proxmox" {
-  endpoint = var.proxmox_endpoint
+  endpoint  = var.proxmox_endpoint
   api_token = var.proxmox_api_token
-  insecure = false
+  insecure  = false
   # alias = "proxmox"
 
   ssh {
-    agent = true
+    agent    = true
     username = "root"
   }
 }
