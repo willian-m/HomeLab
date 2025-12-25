@@ -140,7 +140,6 @@ resource "proxmox_virtual_environment_vm" "ubuntu_dev_vm" {
     bridge = "vmbr0"
   }
 
-
   provisioner "local-exec" {
     when = destroy
 

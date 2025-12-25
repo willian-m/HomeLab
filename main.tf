@@ -28,6 +28,17 @@ provider "proxmox" {
   }
 }
 
+resource "null_resource" "start_ssh_agent" {
+  provisioner "local-exec" {
+    command = <<-EOF
+      if [ -z "$SSH_AUTH_SOCK" ]; then
+        eval "$(ssh-agent -s)"
+        ssh-add ${var.public_key_path} 2>/dev/null
+      fi
+    EOF
+  }
+}
+
 module "dev_vm" {
   source = "./modules/dev-vm"
 
