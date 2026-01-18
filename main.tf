@@ -51,3 +51,7 @@ module "dev_vm" {
   proxmox_host         = var.proxmox_host
   tailscale_auth_key   = var.tailscale_auth_key
 }
+
+module "dns" {
+  source = "./modules/dns"
+}

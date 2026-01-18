@@ -7,6 +7,9 @@ install-terraform:
 destroy-dev-vm:
 	terraform destroy -target module.dev_vm.proxmox_virtual_environment_vm.ubuntu_dev_vm -target module.dev_vm.proxmox_virtual_environment_file.user_data_cloud_config
 
+destroy-dns-server:
+	terraform destroy -target module.dns.proxmox_virtual_environment_container.adguard_container
+
 init:
 	ln -sf ./git_hooks/pre-commit .git/hooks/pre-commit
 	terraform init
