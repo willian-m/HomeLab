@@ -10,7 +10,7 @@ terraform {
   }
 }
 
-resource "null_resource" "create_users" {
+resource "null_resource" "create_user_infrastructure" {
   provisioner "local-exec" {
     command = <<-EOT
       ssh root@${var.proxmox_host} bash << 'ENDSSH'
@@ -20,15 +20,33 @@ resource "null_resource" "create_users" {
         if [[ $current_uid != ${var.user_uid} ]]; then
           adduser --system --no-create-home --uid ${var.user_uid} ${var.username}
         fi
+        mkdir -p /mnt/ExternalHardDisk/services/dev-projects
+        chown ${var.username}:nogroup /mnt/ExternalHardDisk/services/dev-projects
       ENDSSH
     EOT
   }
 }
 
+resource "proxmox_virtual_environment_hardware_mapping_dir" "dev_vm_data" {
+  comment = "Directory for storing development projects"
+  name    = "dev_vm_data"
+  depends_on = [
+    null_resource.create_user_infrastructure,
+  ]
+
+  map = [
+    {
+      node = "titanium"
+      path = "/mnt/ExternalHardDisk/services/dev-projects"
+    },
+  ]
+}
+
+
 resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
   content_type = "snippets"
   datastore_id = "local"
-  node_name    = "pve"
+  node_name    = "titanium"
 
   source_raw {
     data      = templatefile("${path.module}/cloud-init.tftpl", {
@@ -44,13 +62,10 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
 
 resource "proxmox_virtual_environment_vm" "ubuntu_dev_vm" {
   name        = "ubuntu-dev-vm"
-  node_name   = "pve"
+  node_name   = "titanium"
   description = "Machine used for dev purposes. Managed by Terraform"
   tags        = ["terraform", "ubuntu", "dev"]
 
-  depends_on = [
-    null_resource.create_users,
-  ]
 
   agent {
     enabled = true
@@ -76,7 +91,7 @@ resource "proxmox_virtual_environment_vm" "ubuntu_dev_vm" {
 
   # Mount dev-projects 
   virtiofs {
-    mapping      = "dev-projects"
+    mapping      = proxmox_virtual_environment_hardware_mapping_dir.dev_vm_data.id
     cache        = "always"
     direct_io    = true
     expose_acl   = true
@@ -118,7 +133,7 @@ resource "proxmox_virtual_environment_vm" "ubuntu_dev_vm" {
 resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
   content_type = "import"
   datastore_id = "local"
-  node_name    = "pve"
+  node_name    = "titanium"
   url          = var.ubuntu_base_img_addr
   # need to rename the file to *.qcow2 to indicate the actual file format for import
   file_name = "noble-server-cloudimg-amd64.qcow2"

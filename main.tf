@@ -19,7 +19,7 @@ terraform {
 provider "proxmox" {
   endpoint  = var.proxmox_endpoint
   api_token = var.proxmox_api_token
-  insecure  = false
+  insecure  = true
   # alias = "proxmox"
 
   ssh {
@@ -33,7 +33,7 @@ resource "null_resource" "start_ssh_agent" {
     command = <<-EOF
       if [ -z "$SSH_AUTH_SOCK" ]; then
         eval "$(ssh-agent -s)"
-        ssh-add ${var.public_key_path} 2>/dev/null
+        ssh-add ${var.private_key_path} 2>/dev/null
       fi
     EOF
   }

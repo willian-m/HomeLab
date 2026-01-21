@@ -8,7 +8,7 @@ terraform {
 }
 
 resource "proxmox_virtual_environment_oci_image" "adguard_img" {
-  node_name    = "pve"
+  node_name    = "titanium"
   datastore_id = "local"
   reference    = "docker.io/adguard/adguardhome:latest"
   file_name    = "adguardhome-latest.tar"
@@ -17,16 +17,24 @@ resource "proxmox_virtual_environment_oci_image" "adguard_img" {
 
 
 resource "proxmox_virtual_environment_container" "adguard_container" {
-  node_name       = "pve"
+  node_name       = "titanium"
   tags            = ["dns", "terraform"]
 
   unprivileged = true
   features {
     nesting = false
   }
-  
+
   operating_system {
     template_file_id = proxmox_virtual_environment_oci_image.adguard_img.id
+  }
+
+  console {
+    enabled = false
+  }
+
+  memory {
+    dedicated = 8192
   }
 
   initialization {
@@ -52,15 +60,15 @@ resource "proxmox_virtual_environment_container" "adguard_container" {
 
   # volume mounts
   mount_point {
-    volume = "ExternalHardDrive"
-    size   = "10G"
+    volume = "ExternalHardDisk"
+    size   = "5"
     path   = "/opt/adguardhome/work"
     backup = true
   }
 
   mount_point {
-    volume = "ExternalHardDrive"
-    size   = "10G"
+    volume = "ExternalHardDisk"
+    size   = "1G"
     path   = "/opt/adguardhome/conf"
     backup = true
   }

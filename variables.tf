@@ -23,6 +23,12 @@ variable "public_key_path" {
   sensitive   = false
 }
 
+variable "private_key_path" {
+  description = "Path to the private key used to access proxmox server via SSH"
+  type        = string
+  sensitive   = false
+}
+
 variable "dev_vm_net_bridge_interface" {
   description = "Name of the network interface which will be used as a bridge for dev VM"
   type        = string
