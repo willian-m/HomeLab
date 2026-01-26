@@ -54,4 +54,11 @@ module "dev_vm" {
 
 module "dns" {
   source = "./modules/dns"
+
+  node_name           = var.node_name
+
+  ipv4_address        = var.dns_ipv4_address
+  ipv4_gateway        = var.dns_ipv4_gateway
+  ipv6_address        = var.dns_ipv6_address
+  ipv6_gateway        = var.dns_ipv6_gateway
 }

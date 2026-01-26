@@ -64,3 +64,57 @@ variable "tailscale_auth_key" {
   type        = string
   sensitive   = true
 }
+
+variable "dns_ipv4_address" {
+  description = "Name of the ipv4 address to assign to the AdGuard Home container. Includes CIDR notation."
+  type        = string
+  sensitive   = false
+}
+
+variable "dns_ipv6_address" {
+  description = "Name of the ipv6 address to assign to the AdGuard Home container. Includes CIDR notation."
+  type        = string
+  sensitive   = false
+}
+
+variable "dns_ipv4_gateway" {
+  description = "Name of the ipv4 gateway to assign to the AdGuard Home container."
+  type        = string
+  sensitive   = false
+}
+
+variable "dns_ipv6_gateway" {
+  description = "Name of the ipv6 gateway to assign to the AdGuard Home container."
+  type        = string
+  sensitive   = false
+}
+
+variable "dev_vm_ipv4_address" {
+  description = "Name of the ipv4 address to assign to the dev vm. Includes CIDR notation."
+  type        = string
+  sensitive   = false
+}
+
+variable "dev_vm_ipv6_address" {
+  description = "Name of the ipv6 address to assign to the dev vm. Includes CIDR notation."
+  type        = string
+  sensitive   = false
+}
+
+variable "dev_vm_ipv4_gateway" {
+  description = "Name of the ipv4 gateway to assign to the dev vm."
+  type        = string
+  sensitive   = false
+}
+
+variable "dev_vm_ipv6_gateway" {
+  description = "Name of the ipv6 gateway to assign to the dev vm."
+  type        = string
+  sensitive   = false
+}
+
+variable "node_name" {
+  description = "Name of the node where to deploy the VMs"
+  type        = string
+  sensitive   = false
+}

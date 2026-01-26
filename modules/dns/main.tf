@@ -17,7 +17,7 @@ resource "proxmox_virtual_environment_oci_image" "adguard_img" {
 
 
 resource "proxmox_virtual_environment_container" "adguard_container" {
-  node_name       = "titanium"
+  node_name       = var.node_name
   tags            = ["dns", "terraform"]
 
   unprivileged = true
@@ -41,8 +41,12 @@ resource "proxmox_virtual_environment_container" "adguard_container" {
     hostname = "adguard-home"
     ip_config {
       ipv4 {
-        address = "192.168.0.200/24"
-        gateway = "192.168.0.1"
+        address = "${var.ipv4_address}"
+        gateway = "${var.ipv4_gateway}"
+      }
+      ipv6 {
+        address = "${var.ipv6_address}"
+        gateway = "${var.ipv6_gateway}"
       }
     }
   }
@@ -50,6 +54,7 @@ resource "proxmox_virtual_environment_container" "adguard_container" {
   network_interface {
     name = "veth0"
     bridge = "vmbr0"
+    mac_address = "BC:24:11:7B:1A:2C"
   }
 
 
@@ -61,7 +66,7 @@ resource "proxmox_virtual_environment_container" "adguard_container" {
   # volume mounts
   mount_point {
     volume = "ExternalHardDisk"
-    size   = "5"
+    size   = "1G"
     path   = "/opt/adguardhome/work"
     backup = true
   }
