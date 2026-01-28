@@ -42,6 +42,7 @@ resource "null_resource" "start_ssh_agent" {
 module "dev_vm" {
   source = "./modules/dev-vm"
 
+  node_name            = var.node_name
   username             = var.dev_vm_username
   user_uid             = var.dev_vm_user_uid
   ubuntu_base_img_addr = var.dev_vm_ubuntu_base_img_addr
@@ -50,6 +51,11 @@ module "dev_vm" {
   net_bridge_interface = var.dev_vm_net_bridge_interface
   proxmox_host         = var.proxmox_host
   tailscale_auth_key   = var.tailscale_auth_key
+
+  ipv4_address         = var.dev_vm_ipv4_address
+  ipv4_gateway         = var.dev_vm_ipv4_gateway
+  ipv6_address         = var.dev_vm_ipv6_address
+  ipv6_gateway         = var.dev_vm_ipv6_gateway
 }
 
 module "dns" {

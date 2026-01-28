@@ -81,30 +81,6 @@
         regexp: 'ZSH_THEME=".*"'
         replace: 'ZSH_THEME="ys"'
 
-- name: Install mamba package manager
-  hosts: dev_vm
-  become: yes
-
-  vars:
-    target_user: "${username}"
-
-  tasks:
-    - name: Install dependencies for mamba
-      ansible.builtin.package:
-        name:
-          - curl
-        state: present
-
-    - name: Install mamba
-      ansible.builtin.shell: |
-        curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh" && \
-        bash Miniforge3-$(uname)-$(uname -m).sh -b
-
-    - name: Initialize mamba for zsh
-      ansible.builtin.shell: |
-        ~/miniforge3/bin/conda init zsh
-      become_user: "{{ target_user }}"
-
 - name: Install development tools
   hosts: dev_vm
   become: yes

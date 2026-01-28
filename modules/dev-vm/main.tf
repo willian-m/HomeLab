@@ -43,7 +43,7 @@ resource "proxmox_virtual_environment_hardware_mapping_dir" "dev_vm_data" {
 }
 
 
-resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
+resource "proxmox_virtual_environment_file" "user_data_cloud_init_config" {
   content_type = "snippets"
   datastore_id = "local"
   node_name    = "titanium"
@@ -61,8 +61,8 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_config" {
 }
 
 resource "proxmox_virtual_environment_vm" "ubuntu_dev_vm" {
-  name        = "ubuntu-dev-vm"
-  node_name   = "titanium"
+  name        = "dev-vm"
+  node_name   = var.node_name
   description = "Machine used for dev purposes. Managed by Terraform"
   tags        = ["terraform", "ubuntu", "dev"]
 
@@ -76,7 +76,7 @@ resource "proxmox_virtual_environment_vm" "ubuntu_dev_vm" {
   }
 
   memory {
-    dedicated = 2048
+    dedicated = 8192
   }
 
   # 32 GB disk imported from cloud image
@@ -104,17 +104,21 @@ resource "proxmox_virtual_environment_vm" "ubuntu_dev_vm" {
 
     ip_config {
       ipv4 {
-        address = "192.168.0.101/24"
-        gateway = "192.168.0.1"
-        # address = "dhcp"
+        address = var.ipv4_address
+        gateway = var.ipv4_gateway
+      }
+      ipv6 {
+        address = var.ipv6_address
+        gateway = var.ipv6_gateway
       }
     }
 
-    user_data_file_id = proxmox_virtual_environment_file.user_data_cloud_config.id
+    user_data_file_id = proxmox_virtual_environment_file.user_data_cloud_init_config.id
   }
 
   network_device {
     bridge = "vmbr0"
+    mac_address = "BC:24:11:CE:9B:F9"
   }
 
   provisioner "local-exec" {
@@ -142,6 +146,7 @@ resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
 resource "local_file" "ansible_inventory_dev_vm" {
   content = templatefile("${path.module}/inventory.tftpl", {
     host_ip = proxmox_virtual_environment_vm.ubuntu_dev_vm.ipv4_addresses[1][0]
+    username = var.username
   })
 
   filename = "${path.module}/../../ansible/inventory/dev-vm.yml"
