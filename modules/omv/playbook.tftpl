@@ -1,0 +1,74 @@
+---
+- name: Setup VM with Tailscale
+  hosts: omv
+  become: yes
+
+  vars:
+    tailscale_auth_key: "${tailscale_auth_key}"
+    target_user: "${username}"
+
+  tasks:
+    # Update package cache
+    - name: Update apt cache (Debian/Ubuntu)
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    # Install Tailscale
+    - name: Download Tailscale install script
+      get_url:
+        url: https://tailscale.com/install.sh
+        dest: /tmp/tailscale-install.sh
+        mode: '0755'
+
+    - name: Install Tailscale using official script
+      shell: /tmp/tailscale-install.sh
+      args:
+        creates: /usr/bin/tailscale
+
+    - name: Enable and start Tailscale service
+      systemd:
+        name: tailscaled
+        enabled: yes
+        state: started
+
+    - name: Check if Tailscale is already connected
+      command: tailscale status
+      register: tailscale_status
+      changed_when: false
+      failed_when: false
+
+    - name: Connect to Tailscale network
+      command: "tailscale up --authkey={{ tailscale_auth_key }}"
+      when: 
+        - tailscale_auth_key | length > 0
+        - tailscale_status.rc != 0
+
+
+- name: Setup OpenMediaVault
+  hosts: omv
+  become: yes
+
+  vars:
+    target_user: "${username}"
+
+  tasks:
+     # Update package cache
+    - name: Update apt cache (Debian/Ubuntu)
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install OpenMediaVault
+      ansible.builtin.shell: |
+        export LANG=C.UTF-8
+        export DEBIAN_FRONTEND=noninteractive
+        export APT_LISTCHANGES_FRONTEND=none
+        apt-get --yes --auto-remove --show-upgraded \
+          --allow-downgrades --allow-change-held-packages \
+          --no-install-recommends \
+          --option DPkg::Options::="--force-confdef" \
+          --option DPkg::Options::="--force-confold" \
+          install openmediavault
+          omv-confdbadm populate
+          omv-salt deploy run systemd-networkd

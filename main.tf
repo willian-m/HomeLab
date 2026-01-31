@@ -53,9 +53,9 @@ module "dev_vm" {
   tailscale_auth_key   = var.tailscale_auth_key
 
   ipv4_address         = var.dev_vm_ipv4_address
-  ipv4_gateway         = var.dev_vm_ipv4_gateway
   ipv6_address         = var.dev_vm_ipv6_address
-  ipv6_gateway         = var.dev_vm_ipv6_gateway
+  ipv4_gateway         = var.ipv4_gateway
+  ipv6_gateway         = var.ipv6_gateway
 }
 
 module "dns" {
@@ -64,7 +64,29 @@ module "dns" {
   node_name           = var.node_name
 
   ipv4_address        = var.dns_ipv4_address
-  ipv4_gateway        = var.dns_ipv4_gateway
   ipv6_address        = var.dns_ipv6_address
-  ipv6_gateway        = var.dns_ipv6_gateway
+  ipv4_gateway        = var.ipv4_gateway
+  ipv6_gateway        = var.ipv6_gateway
+}
+
+module "omv" {
+  source = "./modules/omv"
+
+  node_name            = var.node_name
+  username             = var.omv_username
+  user_uid             = var.omv_user_uid
+  debian_base_img_addr = var.omv_debian_base_img_addr
+  vm_password          = var.omv_password
+  public_key_path      = var.public_key_path
+  net_bridge_interface = var.omv_net_bridge_interface
+  proxmox_host         = var.proxmox_host
+  tailscale_auth_key   = var.tailscale_auth_key
+
+  ipv4_address         = var.omv_ipv4_address
+  ipv6_address         = var.omv_ipv6_address
+  ipv4_gateway         = var.ipv4_gateway
+  ipv6_gateway         = var.ipv6_gateway
+
+  dns_server_ip        = var.dns_ipv4_address
+
 }

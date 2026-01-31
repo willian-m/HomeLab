@@ -20,6 +20,15 @@ dns-server:
 destroy-dns-server:
 	terraform destroy -target module.dns.proxmox_virtual_environment_container.adguard_container
 
+omv:
+	terraform apply -target module.omv.proxmox_virtual_environment_vm.omv_vm \
+	-target module.omv.null_resource.ansible_provision_omv
+
+destroy-omv:
+	terraform destroy -target module.omv.proxmox_virtual_environment_vm.omv_vm \
+	-target module.omv.proxmox_virtual_environment_file.user_data_cloud_init_config \
+	-target module.omv.null_resource.ansible_provision_omv
+
 init:
 	ln -sf ./git_hooks/pre-commit .git/hooks/pre-commit
 	terraform init

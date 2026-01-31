@@ -1,0 +1,44 @@
+#cloud-config
+hostname: omv
+timezone: America/Sao_Paulo
+users:
+  - user:
+    name: ${username}
+    uid: ${user_uid}
+    passwd: ${vm_password}
+    groups:
+      - docker
+      - sudo
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ${ssh_authorized_key}
+    lock_passwd: false
+apt:
+  preserve_sources_list: true
+  sources:
+    openmediavault.list:
+      source: deb  https://packages.openmediavault.org/public synchrony main
+      keyid: D67506C878E08A94FD7E009424863F0C716B980B
+      # If key expires and needs to be updated, update the keyid above with:
+      # curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --show-keys --fingerprint --with-colons | awk -F: '/^fpr:/ { print $10 }'
+    openmediavault.partners.list:
+      source: deb  https://packages.openmediavault.org/public synchrony partner
+      keyid: D67506C878E08A94FD7E009424863F0C716B980B
+
+mounts:
+  - [ 'omv-storage', '/home/${username}/omv-storage', 'virtiofs', 'rw,default', '0', '0' ]
+package_update: true
+ssh_pwauth: false
+packages:
+  - psmisc
+  - qemu-guest-agent
+  - systemd-resolved
+runcmd:
+  - systemctl enable qemu-guest-agent
+  - systemctl start qemu-guest-agent
+  - systemctl enable --now systemd-resolved.service
+  - systemctl restart systemd-resolved.service
+  - resolvectl dns eth0 ${dns_server_ip}
+  - chown ${username}:${username} /home/${username}
+  - chown -R ${username}:${username} /home/${username}/omv-storage
+  - echo "done" > /tmp/cloud-config.done
