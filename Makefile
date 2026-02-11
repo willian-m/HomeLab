@@ -40,5 +40,3 @@ plan:
 apply:
 	terraform apply -auto-approve
 
-
-

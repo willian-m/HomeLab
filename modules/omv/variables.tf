@@ -82,3 +82,9 @@ variable "dns_server_ip" {
   type        = string
   sensitive   = false
 }
+
+variable "storage_host_path" {
+  description = "Path on the Proxmox host to be shared with OMV via VirtioFS"
+  type        = string
+  sensitive   = false
+}

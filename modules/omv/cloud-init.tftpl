@@ -9,6 +9,7 @@ users:
     groups:
       - docker
       - sudo
+      - _ssh
     shell: /bin/bash
     ssh_authorized_keys:
       - ${ssh_authorized_key}
@@ -26,7 +27,7 @@ apt:
       keyid: D67506C878E08A94FD7E009424863F0C716B980B
 
 mounts:
-  - [ 'omv-storage', '/home/${username}/omv-storage', 'virtiofs', 'rw,default', '0', '0' ]
+  - [ 'omv-storage', '/home/${username}/omv-storage', 'virtiofs', 'rw', '0', '0' ]
 package_update: true
 ssh_pwauth: false
 packages:

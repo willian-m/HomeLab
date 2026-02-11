@@ -162,3 +162,9 @@ variable "omv_ipv6_address" {
   type        = string
   sensitive   = false
 }
+
+variable "omv_storage_host_path" {
+  description = "Path on the Proxmox host to be shared with OMV via VirtioFS"
+  type        = string
+  sensitive   = false
+}

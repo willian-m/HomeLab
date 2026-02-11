@@ -20,8 +20,8 @@ resource "null_resource" "create_user_infrastructure" {
         if [[ $current_uid != ${var.user_uid} ]]; then
           adduser --system --no-create-home --uid ${var.user_uid} ${var.username}
         fi
-        mkdir -p /mnt/ExternalHardDisk/services/omv-storage
-        chown ${var.username}:nogroup /mnt/ExternalHardDisk/services/omv-storage
+        mkdir -p ${var.storage_host_path}
+        chown ${var.username}:nogroup ${var.storage_host_path}
       ENDSSH
     EOT
   }
@@ -37,7 +37,7 @@ resource "proxmox_virtual_environment_hardware_mapping_dir" "omv_storage" {
   map = [
     {
       node = var.node_name
-      path = "/mnt/ExternalHardDisk/services/omv-storage"
+      path = var.storage_host_path
     },
   ]
 }
@@ -48,12 +48,12 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_init_config" {
   node_name    = var.node_name
 
   source_raw {
-    data      = templatefile("${path.module}/cloud-init.tftpl", {
-      username            = var.username
-      user_uid            = var.user_uid
-      vm_password         = var.vm_password
-      ssh_authorized_key  = data.local_file.ssh_public_key.content
-      dns_server_ip       = var.dns_server_ip
+    data = templatefile("${path.module}/cloud-init.tftpl", {
+      username           = var.username
+      user_uid           = var.user_uid
+      vm_password        = var.vm_password
+      ssh_authorized_key = data.local_file.ssh_public_key.content
+      dns_server_ip      = var.dns_server_ip
     })
     file_name = "user-data-debian-omv-cloud-config.yaml"
   }
@@ -117,7 +117,7 @@ resource "proxmox_virtual_environment_vm" "omv_vm" {
   }
 
   network_device {
-    bridge = "vmbr0"
+    bridge      = "vmbr0"
     mac_address = "BC:41:5B:41:F2:F8"
   }
 
@@ -145,7 +145,7 @@ resource "proxmox_virtual_environment_download_file" "debian_cloud_image" {
 
 resource "local_file" "ansible_inventory_omv" {
   content = templatefile("${path.module}/inventory.tftpl", {
-    host_ip = proxmox_virtual_environment_vm.omv_vm.ipv4_addresses[1][0]
+    host_ip  = proxmox_virtual_environment_vm.omv_vm.ipv4_addresses[1][0]
     username = var.username
   })
 

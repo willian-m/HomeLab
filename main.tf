@@ -87,6 +87,7 @@ module "omv" {
   ipv4_gateway         = var.ipv4_gateway
   ipv6_gateway         = var.ipv6_gateway
 
-  dns_server_ip        = var.dns_ipv4_address
+  dns_server_ip     = var.dns_ipv4_address
+  storage_host_path = var.omv_storage_host_path
 
 }
