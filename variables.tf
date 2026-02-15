@@ -168,3 +168,49 @@ variable "omv_storage_host_path" {
   type        = string
   sensitive   = false
 }
+
+#*******************************************************************************
+# K3s Controller Variables
+#*******************************************************************************
+
+variable "k3s_controller_net_bridge_interface" {
+  description = "Name of the network interface which will be used as a bridge for k3s controller"
+  type        = string
+  sensitive   = false
+}
+
+variable "k3s_controller_username" {
+  description = "Username used to access the created k3s controller"
+  type        = string
+  sensitive   = false
+}
+
+variable "k3s_controller_password" {
+  description = "Hashed password that will be used to escalate privileges on the k3s controller"
+  type        = string
+  sensitive   = true
+}
+
+variable "k3s_controller_user_uid" {
+  description = "UID to be assigned to k3s controller user"
+  type        = number
+  sensitive   = false
+}
+
+variable "k3s_controller_ubuntu_base_img_addr" {
+  description = "Address from where to download the Ubuntu base image"
+  type        = string
+  sensitive   = false
+}
+
+variable "k3s_controller_ipv4_address" {
+  description = "Name of the ipv4 address to assign to the k3s controller. Includes CIDR notation."
+  type        = string
+  sensitive   = false
+}
+
+variable "k3s_controller_ipv6_address" {
+  description = "Name of the ipv6 address to assign to the k3s controller. Includes CIDR notation."
+  type        = string
+  sensitive   = false
+}

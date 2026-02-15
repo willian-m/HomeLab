@@ -29,6 +29,12 @@ destroy-omv:
 	-target module.omv.proxmox_virtual_environment_file.user_data_cloud_init_config \
 	-target module.omv.null_resource.ansible_provision_omv
 
+k3s-controller:
+	terraform apply -target module.k3s_controller.proxmox_virtual_environment_vm.k3s_controller_vm
+
+destroy-k3s-controller:
+	terraform destroy -target module.k3s_controller.proxmox_virtual_environment_vm.k3s_controller_vm
+
 init:
 	ln -sf ./git_hooks/pre-commit .git/hooks/pre-commit
 	terraform init

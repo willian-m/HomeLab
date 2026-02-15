@@ -52,21 +52,21 @@ module "dev_vm" {
   proxmox_host         = var.proxmox_host
   tailscale_auth_key   = var.tailscale_auth_key
 
-  ipv4_address         = var.dev_vm_ipv4_address
-  ipv6_address         = var.dev_vm_ipv6_address
-  ipv4_gateway         = var.ipv4_gateway
-  ipv6_gateway         = var.ipv6_gateway
+  ipv4_address = var.dev_vm_ipv4_address
+  ipv6_address = var.dev_vm_ipv6_address
+  ipv4_gateway = var.ipv4_gateway
+  ipv6_gateway = var.ipv6_gateway
 }
 
 module "dns" {
   source = "./modules/dns"
 
-  node_name           = var.node_name
+  node_name = var.node_name
 
-  ipv4_address        = var.dns_ipv4_address
-  ipv6_address        = var.dns_ipv6_address
-  ipv4_gateway        = var.ipv4_gateway
-  ipv6_gateway        = var.ipv6_gateway
+  ipv4_address = var.dns_ipv4_address
+  ipv6_address = var.dns_ipv6_address
+  ipv4_gateway = var.ipv4_gateway
+  ipv6_gateway = var.ipv6_gateway
 }
 
 module "omv" {
@@ -82,12 +82,35 @@ module "omv" {
   proxmox_host         = var.proxmox_host
   tailscale_auth_key   = var.tailscale_auth_key
 
-  ipv4_address         = var.omv_ipv4_address
-  ipv6_address         = var.omv_ipv6_address
-  ipv4_gateway         = var.ipv4_gateway
-  ipv6_gateway         = var.ipv6_gateway
+  ipv4_address = var.omv_ipv4_address
+  ipv6_address = var.omv_ipv6_address
+  ipv4_gateway = var.ipv4_gateway
+  ipv6_gateway = var.ipv6_gateway
 
   dns_server_ip     = var.dns_ipv4_address
   storage_host_path = var.omv_storage_host_path
 
+}
+
+module "k3s_controller" {
+  source = "./modules/k3s-controller"
+
+  node_name            = var.node_name
+  username             = var.k3s_controller_username
+  user_uid             = var.k3s_controller_user_uid
+  ubuntu_base_img_addr = var.k3s_controller_ubuntu_base_img_addr
+  vm_password          = var.k3s_controller_password
+  public_key_path      = var.public_key_path
+  net_bridge_interface = var.k3s_controller_net_bridge_interface
+  proxmox_host         = var.proxmox_host
+  tailscale_auth_key   = var.tailscale_auth_key
+
+  ipv4_address = var.k3s_controller_ipv4_address
+  ipv6_address = var.k3s_controller_ipv6_address
+  ipv4_gateway = var.ipv4_gateway
+  ipv6_gateway = var.ipv6_gateway
+
+  dns_server_ip = var.dns_ipv4_address
+  nfs_server_ip = var.omv_ipv4_address
+  omv_username  = var.omv_username
 }

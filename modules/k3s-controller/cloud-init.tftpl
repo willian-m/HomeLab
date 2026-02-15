@@ -1,0 +1,30 @@
+#cloud-config
+hostname: k3s-controller
+timezone: America/Sao_Paulo
+users:
+  - user:
+    name: ${username}
+    uid: ${user_uid}
+    passwd: ${vm_password}
+    groups:
+      - sudo
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ${ssh_authorized_key}
+    lock_passwd: false
+mounts:
+  - [ "${nfs_server_ip}:/home/${omv_username}/omv-storage", "/mnt/nfs-storage", "nfs", "defaults,nofail", "0", "0" ]
+package_update: true
+ssh_pwauth: false
+packages:
+  - curl
+  - nfs-utils
+  - qemu-guest-agent
+  - sudo
+runcmd:
+  - systemctl enable qemu-guest-agent
+  - systemctl start qemu-guest-agent
+  - curl -sfL https://get.k3s.io | sh -
+  - chown ${username}:${username} /home/${username}
+  - echo "done" > /tmp/cloud-config.done
+
