@@ -35,7 +35,85 @@ Currently, the setup includes:
 1. Clone this repository to your local machine.
 2. Navigate to the project directory.
 3. Edit the `variables.tfvars` file to set your Proxmox server details, VM specifications, and other configurations.
-4. Edit the `secrets.auto.tfvars` file to set sensitive information like API tokens and passwords. Make sure this file is not committed to version control.
+4. Edit the `secrets.auto.tfvars` file to set sensitive information like password and API tokens. Make sure this file is not committed to version control.
+
+## K3s GPU Worker Setup
+
+The setup includes a GPU-enabled worker node for the K3s cluster. This requires specific configuration on the Proxmox host and the K3s controller.
+
+### 1. Enable GPU Passthrough on Proxmox
+
+Before deploying the GPU worker, you must enable IOMMU and PCI passthrough on your Proxmox host.
+
+1.  **Edit GRUB configuration**:
+    Open `/etc/default/grub` and add `intel_iommu=on iommu=pt` to `GRUB_CMDLINE_LINUX_DEFAULT`.
+    ```bash
+    GRUB_CMDLINE_LINUX_DEFAULT="quiet intel_iommu=on iommu=pt"
+    ```
+    Update GRUB: `update-grub`
+
+2.  **Load VFIO Modules**:
+    Add the following to `/etc/modules`:
+    ```
+    vfio
+    vfio_iommu_type1
+    vfio_pci
+    vfio_virqfd
+    ```
+
+3.  **Blacklist Drivers & Bind GPU**:
+    Create `/etc/modprobe.d/blacklist.conf` to blacklist `nouveau` (or `amdgpu`):
+    ```
+    blacklist nouveau
+    ```
+    Identify your GPU PCI IDs using `lspci -nnk` (look for your GPU and its audio controller) and create `/etc/modprobe.d/vfio.conf`:
+    ```
+    options vfio-pci ids=10de:2520,10de:228e disable_vga=1
+    ```
+    *(Replace IDs with your specific device IDs)*
+    
+    Update initramfs: `update-initramfs -u`
+
+4.  **Get Device IDs**:
+    Run `lspci -nn | grep VGA` to find your GPU. The output will look like `01:00.0 ... [10de:2520]`.
+    *   `01:00.0` is the `gpu_pci_id`.
+    *   `10de:2520` is the `gpu_device_id`.
+    
+    Review `lspci -nnk` output for the Subsystem ID:
+     *   Look for `Subsystem: ... [1028:0a61]` (Example).
+     *   `1028:0a61` is the `gpu_subsystem_id`.
+
+    To find the IOMMU Group, run:
+    ```bash
+    find /sys/kernel/iommu_groups/ -type l | grep <gpu_pci_id>
+    ```
+    *   Example output: `/sys/kernel/iommu_groups/16/devices/0000:01:00.0`
+    *   `16` is the `gpu_iommu_group`.
+
+    Update your `variables.auto.tfvars` with these values.
+
+5.  **Reboot Proxmox Host**.
+
+### 2. Deployment Order & Token Retrieval
+
+> **WARNING**: The **K3s Controller** must be fully provisioned and running *before* you can deploy the GPU Worker.
+
+The worker node requires the K3s server token to join the cluster.
+
+1.  **Deploy Controller**:
+    Ensure the `k3s-controller` module is applied and the VM is running.
+2.  **Retrieve Token**:
+    SSH into the controller and fetch the node token:
+    ```bash
+    ssh <controller-user>@<controller-ip> "sudo -S cat /var/lib/rancher/k3s/server/node-token"
+    ```
+3.  **Configure Secrets**:
+    Add the token to your `secrets.auto.tfvars` (or `variables.auto.tfvars` if not treating as secret):
+    ```hcl
+    k3s_token = "K10..."
+    ```
+4.  **Deploy Worker**:
+    Run `terraform apply` or `make apply` to provision the worker node.
 
 ## Initial Deployment
 

@@ -1,0 +1,47 @@
+#cloud-config
+hostname: k3s-gpu-worker
+timezone: America/Sao_Paulo
+users:
+  - user:
+    name: ${username}
+    uid: ${user_uid}
+    passwd: ${vm_password}
+    groups:
+      - sudo
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ${ssh_authorized_key}
+    lock_passwd: false
+mounts:
+  - [ "${nfs_server_ip}:/home/${omv_username}/omv-storage", "/mnt/nfs-storage", "nfs", "defaults,nofail", "0", "0" ]
+package_update: true
+ssh_pwauth: false
+packages:
+  - curl
+  - nfs-utils
+  - qemu-guest-agent
+  - sudo
+  - gpg
+  - ubuntu-drivers-common
+  - nvidia-driver-535-server
+  - nvidia-utils-535-server
+
+runcmd:
+  - systemctl enable qemu-guest-agent
+  - systemctl start qemu-guest-agent
+  # Install Nvidia Container Toolkit
+  - curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+  - curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+  - apt-get update
+  - apt-get install -y nvidia-container-toolkit
+  # Configure Containerd for Nvidia
+  # K3s uses containerd, we need to configure it. K3s generates config.toml usually.
+  # We can just install K3s and then patch it, or prepopulate config.tmol.
+  # Simpler approach: Install K3s, then configure toolkit.
+  - curl -sfL https://get.k3s.io | K3S_URL=${k3s_url} K3S_TOKEN=${k3s_token} sh -
+  # Configure nvidia-container-runtime
+  - nvidia-ctk runtime configure --runtime=containerd
+  - systemctl restart k3s-agent
+  - chown ${username}:${username} /home/${username}
+  - echo "done" > /tmp/cloud-config.done
+

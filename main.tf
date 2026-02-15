@@ -114,3 +114,34 @@ module "k3s_controller" {
   nfs_server_ip = var.omv_ipv4_address
   omv_username  = var.omv_username
 }
+
+module "k3s_gpu_worker" {
+  source = "./modules/k3s-gpu-worker"
+
+  node_name            = var.node_name
+  username             = var.k3s_controller_username
+  user_uid             = var.k3s_controller_user_uid
+  ubuntu_base_img_addr = var.k3s_controller_ubuntu_base_img_addr
+  vm_password          = var.k3s_controller_password
+  public_key_path      = var.public_key_path
+  net_bridge_interface = var.k3s_controller_net_bridge_interface
+  proxmox_host         = var.proxmox_host
+  tailscale_auth_key   = var.tailscale_auth_key
+
+  ipv4_address = var.k3s_gpu_worker_ipv4_address
+  ipv6_address = var.k3s_gpu_worker_ipv6_address
+  ipv4_gateway = var.ipv4_gateway
+  ipv6_gateway = var.ipv6_gateway
+
+  dns_server_ip = var.dns_ipv4_address
+  nfs_server_ip = var.omv_ipv4_address
+  omv_username  = var.omv_username
+
+  gpu_name         = var.gpu_name
+  gpu_pci_id       = var.gpu_pci_id
+  gpu_device_id    = var.gpu_device_id
+  gpu_iommu_group  = var.gpu_iommu_group
+  gpu_subsystem_id = var.gpu_subsystem_id
+  k3s_url          = "https://${split("/", var.k3s_controller_ipv4_address)[0]}:6443"
+  k3s_token        = var.k3s_token
+}

@@ -214,3 +214,58 @@ variable "k3s_controller_ipv6_address" {
   type        = string
   sensitive   = false
 }
+
+#*******************************************************************************
+# K3s GPU Worker Variables
+#*******************************************************************************
+
+
+variable "gpu_name" {
+  description = "Name of the GPU to pass through"
+  type        = string
+  sensitive   = false
+}
+
+variable "gpu_device_id" {
+  description = "Device ID of the GPU to pass through (e.g. 10de:2520)"
+  type        = string
+  sensitive   = false
+  default     = "10de:2520"
+}
+
+variable "gpu_pci_id" {
+  description = "PCI ID of the GPU to pass through (e.g. 0000:01:00.0)"
+  type        = string
+  sensitive   = false
+  default     = "0000:01:00.0"
+}
+
+variable "gpu_iommu_group" {
+  description = "IOMMU group of the GPU to pass through"
+  type        = string
+  sensitive   = false
+}
+
+variable "gpu_subsystem_id" {
+  description = "Subsystem ID of the GPU to pass through"
+  type        = string
+  sensitive   = false
+}
+
+variable "k3s_gpu_worker_ipv4_address" {
+  description = "Name of the ipv4 address to assign to the k3s worker. Includes CIDR notation."
+  type        = string
+  sensitive   = false
+}
+
+variable "k3s_gpu_worker_ipv6_address" {
+  description = "Name of the ipv6 address to assign to the k3s worker. Includes CIDR notation."
+  type        = string
+  sensitive   = false
+}
+
+variable "k3s_token" {
+  description = "K3s node token"
+  type        = string
+  sensitive   = true
+}
