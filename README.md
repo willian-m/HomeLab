@@ -21,6 +21,7 @@ Currently, the setup includes:
 - Dev VM for remote development and testing of projects.
 - OMV for storage management (NFS share is automatically created on this VM).
 - DNS server using AdGuard Home.
+- K3s controller for Kubernetes cluster management.
 
 ## Prerequisites
 
