@@ -51,6 +51,7 @@
 
   vars:
     target_user: "${username}"
+    nfs_clients: "${nfs_clients}"
 
   tasks:
      # Update package cache
@@ -170,7 +171,7 @@
         sudo omv-rpc "NFS" "setShare" "{
           \"uuid\": \"fa4b1c66-ef79-11e5-87a0-0002b3a176b4\",
           \"sharedfolderref\": \"$SF_UUID\",
-          \"client\": \"*\",
+          \"client\": \"{{ nfs_clients }}\",
           \"options\": \"rw\",
           \"comment\": \"K3s NFS storage\",
           \"extraoptions\": \"subtree_check,insecure,no_root_squash\",

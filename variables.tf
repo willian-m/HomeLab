@@ -169,6 +169,12 @@ variable "omv_storage_host_path" {
   sensitive   = false
 }
 
+variable "nfs_clients" {
+  description = "IP address in CIDR notation of the clients that should be allowed to access the share"
+  type = string
+  sensitive = false
+}
+
 #*******************************************************************************
 # K3s Controller Variables
 #*******************************************************************************

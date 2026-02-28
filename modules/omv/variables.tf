@@ -88,3 +88,9 @@ variable "storage_host_path" {
   type        = string
   sensitive   = false
 }
+
+variable "nfs_clients" {
+  description = "IP address in CIDR notation that should be able to access the share (e.g. 192.168.1.0/24)"
+  type = string
+  sensitive = false
+}

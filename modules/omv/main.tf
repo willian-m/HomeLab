@@ -157,6 +157,7 @@ resource "local_file" "ansible_playbook_omv" {
     tailscale_auth_key = var.tailscale_auth_key
     username           = var.username
     dns_server_ip      = var.dns_server_ip
+    nfs_clients        = var.nfs_clients
   })
 
   filename = "${path.module}/../../ansible/playbooks/omv.yml"

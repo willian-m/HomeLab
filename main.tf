@@ -81,6 +81,7 @@ module "omv" {
   net_bridge_interface = var.omv_net_bridge_interface
   proxmox_host         = var.proxmox_host
   tailscale_auth_key   = var.tailscale_auth_key
+  nfs_clients          = var.nfs_clients
 
   ipv4_address = var.omv_ipv4_address
   ipv6_address = var.omv_ipv6_address
