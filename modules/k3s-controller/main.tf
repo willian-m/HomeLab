@@ -110,3 +110,35 @@ resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
   # need to rename the file to *.qcow2 to indicate the actual file format for import
   file_name = "k3s-controller-noble-server-cloudimg-amd64.qcow2"
 }
+
+resource "local_file" "ansible_inventory_k3s_controller" {
+  content = templatefile("${path.module}/inventory.tftpl", {
+    host_ip = proxmox_virtual_environment_vm.k3s_controller_vm.ipv4_addresses[1][0]
+    username = var.username
+  })
+
+  filename = "${path.module}/../../ansible/inventory/k3s-controller.yml"
+}
+
+resource "local_file" "ansible_playbook_k3s_controller" {
+  content = templatefile("${path.module}/playbook.tftpl", {
+    username           = var.username
+  })
+
+  filename = "${path.module}/../../ansible/playbooks/k3s-controller.yml"
+}
+
+resource "null_resource" "ansible_provision_k3s_controller" {
+  depends_on = [
+    local_file.ansible_inventory_k3s_controller,
+    local_file.ansible_playbook_k3s_controller,
+    proxmox_virtual_environment_vm.k3s_controller_vm,
+  ]
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      ansible-playbook -i ${local_file.ansible_inventory_k3s_controller.filename} ${local_file.ansible_playbook_k3s_controller.filename} \
+      --ssh-extra-args='-o StrictHostKeyChecking=no' --ask-become-pass
+    EOT
+  }
+}

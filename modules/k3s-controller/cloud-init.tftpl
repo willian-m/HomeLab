@@ -12,19 +12,29 @@ users:
     ssh_authorized_keys:
       - ${ssh_authorized_key}
     lock_passwd: false
+apt:
+  preserve_sources_list: true
+  sources:
+    helm.list:
+      source: deb https://packages.buildkite.com/helm-linux/helm-debian/any/ any main
+      keyid: AECF01AC58ECB0517F4445544B196BE9C4313D06
+      # If key expires and needs to be updated, update the keyid above with:
+      # curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey | gpg --show-keys --fingerprint --with-colons | awk -F: '/^fpr:/ { print $10 }'
+
 mounts:
-  - [ "${nfs_server_ip}:/home/${omv_username}/omv-storage", "/mnt/nfs-storage", "nfs", "defaults,nofail", "0", "0" ]
+  - [ "${nfs_server_ip}:omv-storage", "/mnt/nfs-storage", "nfs", "defaults,nofail", "0", "0" ]
 package_update: true
 ssh_pwauth: false
 packages:
   - curl
-  - nfs-utils
+  - nfs-common
   - qemu-guest-agent
   - sudo
+  - helm
 runcmd:
   - systemctl enable qemu-guest-agent
   - systemctl start qemu-guest-agent
-  - curl -sfL https://get.k3s.io | sh -
+  - curl -sfL https://get.k3s.io | K3S_TOKEN=${k3s_token} sh -
   - chown ${username}:${username} /home/${username}
   - echo "done" > /tmp/cloud-config.done
 
