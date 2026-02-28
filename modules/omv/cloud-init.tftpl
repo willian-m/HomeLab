@@ -2,13 +2,13 @@
 hostname: omv
 timezone: America/Sao_Paulo
 users:
-  - user:
-    name: ${username}
+  - name: ${username}
     uid: ${user_uid}
     passwd: ${vm_password}
     groups:
       - sudo
       - _ssh
+      - openmediavault-admin
     shell: /bin/bash
     ssh_authorized_keys:
       - ${ssh_authorized_key}

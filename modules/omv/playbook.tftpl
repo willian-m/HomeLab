@@ -188,3 +188,56 @@
       args:
         executable: /bin/bash
       changed_when: true
+
+- name: Setup OpenMediaVault WebUI User
+  hosts: omv
+  become: yes
+
+  vars:
+    target_user: "${username}"
+
+  tasks:
+    # --- Create user for use in OMV WebUI ---
+    - name: Create user in OMV database
+      ansible.builtin.shell: |
+        set -euo pipefail
+        # Try to create the user; if it already exists, fetch its UUID
+        RESULT=$(sudo omv-rpc "UserMgmt" "setUser" "{
+          \"uuid\": \"fa4b1c66-ef79-11e5-87a0-0002b3a176b4\",
+          \"name\": \"{{ target_user }}\",
+          \"password\": \"{{ target_user }}\",
+          \"email\": \"\",
+          \"disallowusermod\": false,
+          \"sshpubkeys\": [],
+          \"groups\": [\"users\", \"adm\", \"_ssh\", \"{{ target_user }}\", \"sudo\"],
+        }" 2>&1 || true)
+
+        if [ "$(echo $RESULT | jq -r '.error')" != null ]; then
+          # Retrieve existing UUID
+          echo $(sudo omv-confdbadm read "conf.system.user" | jq '.[] | select(.name == "{{ target_user }}") | .uuid')
+          exit 0
+        fi
+        echo "$(echo $RESULT | jq -r '.uuid')"
+        exit 0
+
+      args:
+        executable: /bin/bash
+      register: user_result
+      changed_when: user_result.stdout_lines | length > 0
+
+    - name: Disable default 'admin' user in OMV
+      ansible.builtin.shell: |
+        set -euo pipefail
+        PASS=$(openssl rand -base64 128)
+        sudo passwd admin <<EOF
+        $(echo $PASS)
+        $(echo $PASS)
+        EOF
+      args:
+        executable: /bin/bash
+      changed_when: true
+
+    - name: Apply configuration changes in OMV
+      ansible.builtin.shell: |
+        set -euo pipefail
+        sudo omv-salt deploy run webgui
