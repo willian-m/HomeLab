@@ -94,3 +94,9 @@ variable "omv_username" {
   type        = string
   sensitive   = false
 }
+
+variable "k3s_token" {
+  description = "Token used to register work nodes"
+  type        = string
+  sensitive   = true
+}
