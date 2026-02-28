@@ -105,6 +105,7 @@ module "k3s_controller" {
   net_bridge_interface = var.k3s_controller_net_bridge_interface
   proxmox_host         = var.proxmox_host
   tailscale_auth_key   = var.tailscale_auth_key
+  k3s_token            = var.k3s_token
 
   ipv4_address = var.k3s_controller_ipv4_address
   ipv6_address = var.k3s_controller_ipv6_address

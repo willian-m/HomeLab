@@ -221,6 +221,12 @@ variable "k3s_controller_ipv6_address" {
   sensitive   = false
 }
 
+variable "k3s_token" {
+  description = "Token used to register work nodes into k3s"
+  type = string
+  sensitive = true
+}
+
 #*******************************************************************************
 # K3s GPU Worker Variables
 #*******************************************************************************
@@ -268,10 +274,4 @@ variable "k3s_gpu_worker_ipv6_address" {
   description = "Name of the ipv6 address to assign to the k3s worker. Includes CIDR notation."
   type        = string
   sensitive   = false
-}
-
-variable "k3s_token" {
-  description = "K3s node token"
-  type        = string
-  sensitive   = true
 }
