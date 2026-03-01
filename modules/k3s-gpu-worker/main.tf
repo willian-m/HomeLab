@@ -119,6 +119,35 @@ resource "proxmox_virtual_environment_vm" "k3s_gpu_worker_vm" {
 
 }
 
+resource "local_file" "ansible_inventory" {
+  content = templatefile("${path.module}/inventory.tftpl", {
+    k3s_controller_ip   = var.k3s_controller_ip
+    k3s_controller_user = var.username
+  })
+  filename = "${path.module}/../../ansible/inventory/k3s-gpu-worker.yml"
+}
+
+resource "local_file" "ansible_playbook" {
+  content  = templatefile("${path.module}/playbook.tftpl", {
+    username = var.username
+  })
+  filename = "${path.module}/../../ansible/playbooks/k3s-gpu-worker.yml"
+}
+
+resource "null_resource" "ansible_provision_k3s_gpu_worker" {
+    depends_on = [ local_file.ansible_inventory,
+                    local_file.ansible_playbook,
+                    proxmox_virtual_environment_vm.k3s_gpu_worker_vm]
+
+  triggers = {
+    always_run = timestamp()
+  }
+
+  provisioner "local-exec" {
+    command = "ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ${local_file.ansible_inventory.filename} ${local_file.ansible_playbook.filename} --private-key ${var.private_key_path} --ask-become-pass"
+  }
+}
+
 resource "proxmox_virtual_environment_download_file" "ubuntu_cloud_image" {
   content_type = "import"
   datastore_id = "local"

@@ -126,6 +126,7 @@ module "k3s_gpu_worker" {
   ubuntu_base_img_addr = var.k3s_controller_ubuntu_base_img_addr
   vm_password          = var.k3s_controller_password
   public_key_path      = var.public_key_path
+  private_key_path     = var.private_key_path
   net_bridge_interface = var.k3s_controller_net_bridge_interface
   proxmox_host         = var.proxmox_host
   tailscale_auth_key   = var.tailscale_auth_key
@@ -144,6 +145,8 @@ module "k3s_gpu_worker" {
   gpu_device_id    = var.gpu_device_id
   gpu_iommu_group  = var.gpu_iommu_group
   gpu_subsystem_id = var.gpu_subsystem_id
-  k3s_url          = "https://${split("/", var.k3s_controller_ipv4_address)[0]}:6443"
-  k3s_token        = var.k3s_token
+
+  k3s_controller_ip = split("/", var.k3s_controller_ipv4_address)[0]
+  k3s_url           = "https://${split("/", var.k3s_controller_ipv4_address)[0]}:6443"
+  k3s_token         = var.k3s_token
 }

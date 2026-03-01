@@ -37,7 +37,8 @@ destroy-k3s-controller:
 	terraform destroy -target module.k3s_controller.proxmox_virtual_environment_vm.k3s_controller_vm
 
 k3s-gpu-worker:
-	terraform apply -target module.k3s_gpu_worker.proxmox_virtual_environment_vm.k3s_gpu_worker_vm
+	terraform apply -target module.k3s_gpu_worker.proxmox_virtual_environment_vm.k3s_gpu_worker_vm \
+	-target module.k3s_gpu_worker.null_resource.ansible_provision_k3s_gpu_worker
 
 destroy-k3s-gpu-worker:
 	terraform destroy -target module.k3s_gpu_worker.proxmox_virtual_environment_vm.k3s_gpu_worker_vm

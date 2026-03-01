@@ -35,6 +35,12 @@ variable "public_key_path" {
   sensitive   = false
 }
 
+variable "private_key_path" {
+  description = "Path to the private key used for Ansible SSH access"
+  type        = string
+  sensitive   = true
+}
+
 variable "proxmox_host" {
   description = "Proxmox hostname (for ssh access)"
   type        = string
@@ -69,6 +75,12 @@ variable "gpu_device_id" {
   description = "Vendor:Device ID of the GPU (e.g. 10de:2520)"
   type        = string
   default     = "10de:2520"
+}
+
+variable "k3s_controller_ip" {
+  description = "IP of the K3s Controller for Ansible targeting"
+  type        = string
+  sensitive   = false
 }
 
 variable "k3s_url" {

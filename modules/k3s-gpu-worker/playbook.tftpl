@@ -1,0 +1,71 @@
+---
+- name: Install NVIDIA GPU Operator
+  hosts: k3s_controller
+  become: yes
+  tasks:
+    - name: Add NVIDIA Helm Repository
+      shell: |
+        helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
+        helm repo update
+      register: add_helm_repo
+      failed_when: 
+        - add_helm_repo.rc != 0
+
+    - name: Install NVIDIA GPU Operator
+      shell: |
+        export KUBECONFIG=/home/${username}/.kube/config
+        helm install --wait --generate-name \
+          -n gpu-operator --create-namespace \
+            nvidia/gpu-operator \
+            --set driver.enabled=false \
+            --set toolkit.enabled=false
+      register: install_operator
+      failed_when:
+        - install_operator.rc != 0
+        - "'exists and cannot be imported' not in install_operator.stderr"
+
+- name: Test if gpu accelerated workload is working
+  hosts: k3s_controller
+  become: yes
+  tasks:
+    - name: Create gpu test pod
+      shell: |
+        cat << EOF | sudo kubectl create -f -
+        apiVersion: v1
+        kind: Pod
+        metadata:
+          name: cuda-vectoradd
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: cuda-vectoradd
+            image: "nvcr.io/nvidia/k8s/cuda-sample:vectoradd-cuda11.7.1-ubuntu20.04"
+            resources:
+              limits:
+                nvidia.com/gpu: 1
+        EOF
+        sleep 5
+      register: create_gpu_test_pod
+      failed_when:
+        - create_gpu_test_pod.rc != 0
+
+    - name: Wait for gpu test pod to complete
+      shell: |
+        sudo kubectl wait --for condition=Ready=False --timeout=120s pod/cuda-vectoradd
+      register: wait_gpu_test_pod
+      failed_when:
+        - wait_gpu_test_pod.rc != 0
+
+    - name: Check gpu test pod logs for successful execution
+      shell: |
+        sudo kubectl logs cuda-vectoradd | grep "Test PASSED"
+      register: gpu_test_pod_logs
+      failed_when:
+        - gpu_test_pod_logs.rc != 0
+
+    - name: Clean up gpu test pod
+      shell: |
+        sudo kubectl delete pod cuda-vectoradd
+      register: delete_gpu_test_pod
+      failed_when:
+        - delete_gpu_test_pod.rc != 0
