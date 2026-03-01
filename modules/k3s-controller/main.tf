@@ -23,7 +23,6 @@ resource "proxmox_virtual_environment_file" "user_data_cloud_init_config" {
       ssh_authorized_key = data.local_file.ssh_public_key.content
       dns_server_ip      = var.dns_server_ip
       nfs_server_ip      = split("/",var.nfs_server_ip)[0]
-      k3s_token          = var.k3s_token
     })
     file_name = "user-data-ubuntu-k3s-controller-cloud-config.yaml"
   }
@@ -124,6 +123,7 @@ resource "local_file" "ansible_playbook_k3s_controller" {
   content = templatefile("${path.module}/playbook.tftpl", {
     username           = var.username
     nfs_server_ip      = split("/",var.nfs_server_ip)[0]
+    k3s_token          = var.k3s_token
   })
 
   filename = "${path.module}/../../ansible/playbooks/k3s-controller.yml"

@@ -13,6 +13,36 @@
         fstype: nfs
         opts: defaults,nofail,comment=cloudconfig
 
+    - name: Test if NFS share is mounted
+      ansible.builtin.command: mountpoint -q /mnt/nfs-storage
+      register: nfs_mount_check
+      failed_when: nfs_mount_check.rc != 0
+      changed_when: false
+
+    - name: Test if NFS share is writable
+      ansible.builtin.command: touch /mnt/nfs-storage/testfile
+      register: nfs_write_check
+      failed_when: nfs_write_check.rc != 0
+      changed_when: false
+
+    - name: Remove test file from NFS share
+      ansible.builtin.file:
+        path: /mnt/nfs-storage/testfile
+        state: absent
+
+- name: Install k3s on controller
+  hosts: k3s_controller
+  become: yes
+
+  tasks:
+    - name: Install k3s server
+      shell: |
+        export K3S_TOKEN=${k3s_token}
+        curl -sfL https://get.k3s.io | sh -
+      register: install_k3s
+      failed_when: install_k3s.rc != 0 and "already installed" not in install_k3s.stderr
+      changed_when: install_k3s.rc == 0
+
 - name: Configure helm on k3s controller
   hosts: k3s_controller
   become: yes
