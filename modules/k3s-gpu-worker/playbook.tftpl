@@ -1,4 +1,7 @@
 ---
+# Documentation on installing NVIDIA GPU Operator and enabling times-slicing for GPU sharing:
+# - https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/gpu-sharing.html
+# - https://dzone.com/articles/nvidia-gpu-operator-explained-simplifying-gpu-work
 - name: Install NVIDIA GPU Operator
   hosts: k3s_controller
   become: yes
@@ -23,6 +26,56 @@
       failed_when:
         - install_operator.rc != 0
         - "'exists and cannot be imported' not in install_operator.stderr"
+
+- name: Configure times-slicing for NVIDIA GPU Operator
+  # Documentation: https://docs.nvidia.com/datacenter/cloud-native/gpu-operator/latest/gpu-sharing.html
+  hosts: k3s_controller
+  become: yes
+  tasks:
+    - name: Create configmap to enable times-slicing
+      ansible.builtin.copy:
+        dest: /home/${username}/enable-timeslicing-configmap.yaml
+        content: |
+          apiVersion: v1
+          kind: ConfigMap
+          metadata:
+            name: time-slicing-config-all
+          data:
+            any: |-
+              version: v1
+              flags:
+                migStrategy: none
+              sharing:
+                timeSlicing:
+                  resources:
+                  - name: nvidia.com/gpu
+                    replicas: 4
+      register: create_configmap_file
+
+    - name: Add the config map to the same namespace as the GPU operator
+      shell: |
+        export KUBECONFIG=/home/${username}/.kube/config
+        sudo kubectl create -n gpu-operator -f /home/${username}/enable-timeslicing-configmap.yaml
+      register: apply_configmap
+      failed_when:
+        - apply_configmap.rc != 0
+        - "'already exists' not in apply_configmap.stderr"
+
+    - name: Patch NVIDIA GPU Operator to enable timeslicing
+      shell: |
+        export KUBECONFIG=/home/${username}/.kube/config
+        sudo kubectl patch clusterpolicies.nvidia.com/cluster-policy \
+          -n nvidia/gpu-operator --type merge \
+          -p '{"spec": {"devicePlugin": {"config": {"name": "time-slicing-config-all", "default": "any"}}}}'
+      register: patch_operator
+      failed_when:
+        - patch_operator.rc != 0
+        - "'already exists' not in patch_operator.stderr"
+
+    - name: Clean up configmap file
+      file:
+        path: /home/${username}/enable-timeslicing-configmap.yaml
+        state: absent
 
 - name: Test if gpu accelerated workload is working
   hosts: k3s_controller
