@@ -20,4 +20,5 @@ gpu_device_id               = "10de:2520"
 gpu_iommu_group             = "18"
 gpu_subsystem_id            = "1028:0a5d"
 
-
+#--- Jumpbox Config
+jumpbox_id = 2000

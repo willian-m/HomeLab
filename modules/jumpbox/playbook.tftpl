@@ -1,0 +1,66 @@
+---
+- name: Setup Caddy on jumpbox
+  hosts: proxmox_server
+
+  vars:
+    tailscale_auth_key: "${tailscale_auth_key}"
+
+  tasks:
+    - name: Ensure init is the container's entrypoint
+      ansible.builtin.command: pct set ${jumpbox_id} --entrypoint "/sbin/init"
+
+    - name: Reboot the container to apply init changes
+      ansible.builtin.shell: pct reboot ${jumpbox_id}
+
+    - name: Create temporary file for Caddy config
+      ansible.builtin.copy:
+        dest: /tmp/Caddyfile
+        content: |
+          {
+            tailscale {
+              # Tailscale auth key used to register nodes.
+              auth_key {{ tailscale_auth_key }}
+              state_dir /config/tailscale
+              hostname ${hostname}
+            }
+          }
+
+          https://${hostname}.long-aldebaran.ts.net {
+            bind tailscale/${hostname}
+            reverse_proxy ${ipv4_proxmox}:8006 {
+              transport http {
+                tls_insecure_skip_verify
+              }
+            }
+          }
+
+    - name: Copy Caddyfile to jumpbox
+      ansible.builtin.command: pct push ${jumpbox_id} /tmp/Caddyfile /etc/caddy/Caddyfile
+
+    - name: Remove temporary Caddyfile from proxmox server
+      ansible.builtin.file:
+        path: /tmp/Caddyfile
+        state: absent
+
+    - name: Create temp file for DNS config
+      ansible.builtin.copy:
+        dest: /tmp/resolv.conf
+        content: |
+          nameserver ${ipv4_dns}
+
+    - name: Copy resolv.conf to jumpbox
+      ansible.builtin.command: pct push ${jumpbox_id} /tmp/resolv.conf /etc/resolv.conf
+
+    - name: Remove temporary resolv.conf from proxmox server
+      ansible.builtin.file:
+        path: /tmp/resolv.conf
+        state: absent
+
+    - name: Format the Caddyfile
+      ansible.builtin.command: pct exec ${jumpbox_id} -- caddy fmt --overwrite /etc/caddy/Caddyfile
+
+    - name: Add Caddy to inittab
+      ansible.builtin.command: pct exec ${jumpbox_id} -- sh -c "echo '::respawn:/usr/bin/caddy run --config /etc/caddy/Caddyfile' >> /etc/inittab"
+
+    - name: Reboot container to apply new configuration
+      ansible.builtin.shell: pct reboot ${jumpbox_id}

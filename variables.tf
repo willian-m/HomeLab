@@ -275,3 +275,43 @@ variable "k3s_gpu_worker_ipv6_address" {
   type        = string
   sensitive   = false
 }
+
+#*******************************************************************************
+# Jumpbox
+#*******************************************************************************
+
+variable "jumpbox_hostname" {
+  description = "Hostname to be given to the jumpbox container"
+  type        = string
+  sensitive   = false
+}
+
+variable "proxmox_ip" {
+  description = "IP of proxmox host"
+  type        = string
+  sensitive   = false
+}
+
+variable "ipv4_jumpbox" {
+  description = "IPv4 address to assign to the jumpbox. Includes CIDR notation."
+  type        = string
+  sensitive   = false
+}
+
+variable "ipv6_jumpbox" {
+  description = "IPv6 address to assign to the jumpbox. Includes CIDR notation."
+  type        = string
+  sensitive   = false
+}
+
+variable "jumpbox_id" {
+  description = "ID to be associated to the jumpbox"
+  type = number
+  sensitive = false
+}
+
+variable "proxmox_root_password" {
+  description = "Enter proxmox's password"
+  type = string
+  sensitive = true
+}

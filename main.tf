@@ -93,6 +93,36 @@ module "omv" {
 
 }
 
+provider "proxmox" {
+  alias    = "root"
+  endpoint = var.proxmox_endpoint
+  username = "root@pam"
+  password = var.proxmox_root_password
+  insecure = true
+}
+
+module "jumpbox" {
+  providers = {
+    proxmox = proxmox.root
+  }
+
+  source = "./modules/jumpbox"
+
+  node_name    = var.node_name
+  hostname     = var.jumpbox_hostname
+  ipv4_proxmox = var.proxmox_ip
+  jumpbox_id   = var.jumpbox_id
+
+  tailscale_auth_key = var.tailscale_auth_key
+
+  ipv4_address = var.ipv4_jumpbox
+  ipv6_address = var.ipv6_jumpbox
+  ipv4_gateway = var.ipv4_gateway
+  ipv6_gateway = var.ipv6_gateway
+  ipv4_dns = var.dns_ipv4_address
+}
+
+
 module "k3s_controller" {
   source = "./modules/k3s-controller"
 

@@ -43,6 +43,15 @@ k3s-gpu-worker:
 destroy-k3s-gpu-worker:
 	terraform destroy -target module.k3s_gpu_worker.proxmox_virtual_environment_vm.k3s_gpu_worker_vm
 
+jumpbox:
+	terraform apply -target module.jumpbox.null_resource.ansible_inventory_jumpbox \
+	 -target module.jumpbox.null_resource.ansible_provision_jumpbox \
+	-target module.jumpbox.null_resource.ansible_provision_jumpbox
+
+destroy-jumpbox:
+	terraform destroy -target module.jumpbox.null_resource.ansible_provision_jumpbox \
+	-target module.jumpbox.proxmox_virtual_environment_container.jumpbox
+
 init:
 	ln -sf ./git_hooks/pre-commit .git/hooks/pre-commit
 	terraform init
@@ -54,3 +63,15 @@ plan:
 apply:
 	terraform apply -auto-approve
 
+
+#-------------------------------------------------------------------------------
+# Requires an working k8s cluster (e.g, deploy at least k3s-controller above)
+# ------------------------------------------------------------------------------
+
+# Necessary to generate secrets
+install-sealed-secrets:
+	kubectl apply -f https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.36.0/controller.yaml
+	curl -OL "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.36.0/kubeseal-0.36.0-linux-amd64.tar.gz"
+	tar -xvzf kubeseal-0.36.0-linux-amd64.tar.gz kubeseal
+	sudo install -m 755 kubeseal /usr/local/bin/kubeseal
+	rm kubeseal*
