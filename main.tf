@@ -113,7 +113,8 @@ module "jumpbox" {
   ipv4_proxmox = var.proxmox_ip
   jumpbox_id   = var.jumpbox_id
 
-  tailscale_auth_key = var.tailscale_auth_key
+  tailscale_auth_key  = var.tailscale_auth_key
+  ipv4_k3s_controller = var.k3s_controller_ipv4_address
 
   ipv4_address = var.ipv4_jumpbox
   ipv6_address = var.ipv6_jumpbox

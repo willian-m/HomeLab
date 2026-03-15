@@ -57,3 +57,9 @@ variable "ipv4_dns" {
   type        = string
   sensitive   = false
 }
+
+variable "ipv4_k3s_controller" {
+  description = "IP of the k3s_controller"
+  type        = string
+  sensitive   = false
+}

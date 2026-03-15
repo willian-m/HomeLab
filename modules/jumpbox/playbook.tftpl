@@ -25,11 +25,19 @@
             }
           }
 
+          # Reverse proxying services
           https://${hostname}.long-aldebaran.ts.net {
             bind tailscale/${hostname}
-            reverse_proxy ${ipv4_proxmox}:8006 {
-              transport http {
-                tls_insecure_skip_verify
+
+            handle_path /isotope/* {
+              reverse_proxy http://${ipv4_k3s_controller}:30500
+            }
+
+            handle {
+              reverse_proxy https://${ipv4_proxmox}:8006 {
+                transport http {
+                  tls_insecure_skip_verify
+                }
               }
             }
           }

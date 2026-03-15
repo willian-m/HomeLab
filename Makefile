@@ -52,6 +52,36 @@ destroy-jumpbox:
 	terraform destroy -target module.jumpbox.null_resource.ansible_provision_jumpbox \
 	-target module.jumpbox.proxmox_virtual_environment_container.jumpbox
 
+helm:
+	sudo apt-get install curl gpg apt-transport-https --yes
+	curl -fsSL https://packages.buildkite.com/helm-linux/helm-debian/gpgkey | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+	echo "deb [signed-by=/usr/share/keyrings/helm.gpg] https://packages.buildkite.com/helm-linux/helm-debian/any/ any main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
+	sudo apt-get update
+	sudo apt-get install -y helm
+
+kubectl:
+	curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.35/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+	sudo chmod 644 /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+	echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.35/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+	sudo chmod 644 /etc/apt/sources.list.d/kubernetes.list
+	sudo apt-get update
+	sudo apt-get install -y kubectl
+
+container-registry:
+	helm repo add twuni https://twuni.github.io/docker-registry.helm && \
+	helm repo update && \
+	helm install docker-registry twuni/docker-registry \
+  		--namespace registry \
+  		--create-namespace \
+  		--set persistence.enabled=true \
+  		--set persistence.size=10Gi \
+		--set persistence.storageClass=nfs-retain && \
+	helm upgrade docker-registry twuni/docker-registry \
+		--namespace registry \
+		--set service.type=NodePort \
+		--set service.nodePort=30500
+
+
 init:
 	ln -sf ./git_hooks/pre-commit .git/hooks/pre-commit
 	terraform init
