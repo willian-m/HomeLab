@@ -71,6 +71,12 @@ variable "dns_ipv6_address" {
   sensitive   = false
 }
 
+variable "tailnet_dns_name" {
+  description = "Tailnet DNS name"
+  type        = string
+  sensitive   = false
+}
+
 #*******************************************************************************
 # DEV VM Variables
 #*******************************************************************************

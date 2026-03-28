@@ -63,3 +63,9 @@ variable "ipv4_k3s_controller" {
   type        = string
   sensitive   = false
 }
+
+variable "tailnet_dns_name" {
+  description = "Tailnet DNS name"
+  type = string
+  sensitive = false
+}

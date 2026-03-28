@@ -26,7 +26,7 @@
           }
 
           # Reverse proxying services
-          https://${hostname}.long-aldebaran.ts.net {
+          https://${hostname}.${tailnet_dns_name}.ts.net {
             bind tailscale/${hostname}
 
             handle_path /isotope/* {

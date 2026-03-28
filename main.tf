@@ -114,6 +114,7 @@ module "jumpbox" {
   jumpbox_id   = var.jumpbox_id
 
   tailscale_auth_key  = var.tailscale_auth_key
+  tailnet_dns_name    = var.tailnet_dns_name
   ipv4_k3s_controller = var.k3s_controller_ipv4_address
 
   ipv4_address = var.ipv4_jumpbox

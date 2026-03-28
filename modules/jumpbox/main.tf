@@ -106,6 +106,7 @@ resource "local_file" "ansible_playbook_jumpbox" {
     jumpbox_id = var.jumpbox_id
     ipv4_dns = split("/",var.ipv4_dns)[0]
     ipv4_k3s_controller = split("/",var.ipv4_k3s_controller)[0]
+    tailnet_dns_name = var.tailnet_dns_name
   })
 
   filename = "${path.module}/../../ansible/playbooks/jumpbox.yml"
