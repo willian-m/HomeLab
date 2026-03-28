@@ -181,3 +181,12 @@ module "k3s_gpu_worker" {
   k3s_url           = "https://${split("/", var.k3s_controller_ipv4_address)[0]}:6443"
   k3s_token         = var.k3s_token
 }
+
+module "k8s-generator" {
+  source = "./modules/k8s-generator"
+
+  allocated_registry_storage = 10
+  registry_node_port = 30500
+  ipv4_k3s_controller = var.k3s_controller_ipv4_address
+  username = var.k3s_controller_username
+}

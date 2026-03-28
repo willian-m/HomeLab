@@ -48,15 +48,6 @@ resource "proxmox_virtual_environment_vm" "k3s_controller_vm" {
     dedicated = 16384
   }
 
-  # # Use UEFI for Alpine Cloud Image
-  # bios = "ovmf"
-
-  # efi_disk {
-  #   datastore_id = "local-lvm"
-  #   file_format  = "raw"
-  #   type         = "4m"
-  # }
-
   # 16 GB for system disk
   disk {
     datastore_id = "local-lvm"

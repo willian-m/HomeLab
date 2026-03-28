@@ -152,6 +152,28 @@ overwrite some resources. Instead, I supply a makefile with targets for creating
 and destroying specific resources. For example, if you only want to recreate
 the dev VM from scratch, you can use `make destroy-dev-vm` followed by `make dev-vm`.
 
+
+## Kubernetes Cluster Access
+
+For Kubernetes cluster access, you can retrieve the kubeconfig file from the K3s controller node:
+```bash
+scp <controller-user>@<controller-ip>:/etc/rancher/k3s/k3s.yaml .kube/config
+```
+Make sure to update the server address in the kubeconfig file to point to your 
+controller's IP address instead of localhost.
+
+You will also need to register secrets for some services to work. Run the
+target `install-sealed-secrets` and then use the list below to create the 
+necessary secrets in the `k3s-controller` namespace:
+
+## 1. CUPS
+```
+kubectl create secret generic cups-credentials \
+  --from-literal=CUPSADMIN=admin \
+  --from-literal=CUPSPASSWORD=suasenha \
+  --dry-run=client -o yaml | kubeseal -o yaml > k8s/cups/sealed-secret.yaml
+```
+
 ## Security disclaimer
 
 I use this repository to self host services for my personal use only. Albeit I
