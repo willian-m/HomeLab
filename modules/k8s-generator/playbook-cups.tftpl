@@ -1,0 +1,14 @@
+---
+- name: Build custom cups image
+  hosts: 127.0.0.1
+  gather_facts: no
+  connection: local
+
+  tasks:
+    - name: Build cups image
+      ansible.builtin.shell: |
+        docker build -t ${jumpbox-hostname}.${tailnet_dns_name}.ts.net:5000/cups-epson:latest .
+
+    - name: Push cups image
+      ansible.builtin.shell: |
+        docker push ${jumpbox-hostname}.${tailnet_dns_name}.ts.net:5000/cups-epson:latest

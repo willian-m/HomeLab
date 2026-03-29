@@ -13,3 +13,11 @@ resource "local_file" "ansible_playbook_registry" {
   })
   filename = "${path.module}/../../k8s/registry/playbook.yml"
 }
+
+resource "local_file" "ansible_playbook_cups" {
+  content = templatefile("${path.module}/playbook-cups.tftpl", {
+    tailnet_dns_name = var.tailnet_dns_name
+    jumpbox-hostname = var.jumpbox_hostname
+  })
+  filename = "${path.module}/../../k8s/cups/playbook.yml"
+}

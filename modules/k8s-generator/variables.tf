@@ -21,3 +21,15 @@ variable "username" {
   type = string
   sensitive = false
 }
+
+variable "tailnet_dns_name" {
+  description = "Tailnet DNS name"
+  type = string
+  sensitive = false
+}
+
+variable "jumpbox_hostname" {
+  description = "Hostname of the jumpbox"
+  type = string
+  sensitive = false
+}

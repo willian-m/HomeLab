@@ -190,4 +190,6 @@ module "k8s-generator" {
   registry_node_port = 30500
   ipv4_k3s_controller = var.k3s_controller_ipv4_address
   username = var.k3s_controller_username
+  tailnet_dns_name = var.tailnet_dns_name
+  jumpbox_hostname = var.jumpbox_hostname
 }
