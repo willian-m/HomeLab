@@ -5,16 +5,34 @@
   connection: local
 
   tasks:
-    - name: Create registry deployment manifest
+    - name: Create registry config file
+      ansible.builtin.copy:
+        dest: /tmp/registry-parameters.yml
+        content: |
+          persistence:
+            enabled: true
+            size: ${allocated_registry_storage}Gi
+            storage-class: nfs-retain
+          service:
+            type: LoadBalancer
+            nodePort: ${registry_node_port}
+            labels: {}
+
+
+    - name: Add helm repo for docker registry
+      ansible.builtin.shell: helm repo add twuni https://twuni.github.io/docker-registry.helm 
+
+    - name: Update helm repos
+      ansible.builtin.shell: helm repo update
+
+    - name: Create docker registry
       ansible.builtin.shell: |
-        helm repo add twuni https://twuni.github.io/docker-registry.helm && \
-        helm repo update && \
         helm upgrade --install docker-registry twuni/docker-registry \
             --namespace registry \
             --create-namespace \
-            --set persistence.enabled=true \
-            --set persistence.size=${allocated_registry_storage}Gi \
-            --set persistence.storageClass=nfs-retain \
-            --set service.type=NodePort \
-            --set service.nodePort=${registry_node_port}
+            -f /tmp/registry-parameters.yml
 
+    - name: Clean registry parameter file
+      ansible.builtin.file:
+        path: /tmp/registry-parameters.yml
+        state: absent
