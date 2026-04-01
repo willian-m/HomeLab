@@ -16,6 +16,12 @@ variable "ipv4_k3s_controller" {
   sensitive = false
 }
 
+variable "ipv4_k3s_gpu" {
+  description = "IPv4 of the K3s gpu node"
+  type = string
+  sensitive = false
+}
+
 variable "username" {
   description = "Username to login on K3s controller"
   type = string
@@ -30,6 +36,18 @@ variable "tailnet_dns_name" {
 
 variable "jumpbox_hostname" {
   description = "Hostname of the jumpbox"
+  type = string
+  sensitive = false
+}
+
+variable "ipv4_dns" {
+  description = "IP number of the primary dns to be used"
+  type = string
+  sensitive = false
+}
+
+variable "ipv4_gateway" {
+  description = "IP number of the gateway (i.e., your router)"
   type = string
   sensitive = false
 }

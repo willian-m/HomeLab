@@ -2,5 +2,22 @@
 k3s:
   hosts:
     k3s_controller:
-      ansible_host: {ipv4_k3s_controller}
-      ansible_user: {username}
+      ansible_host: ${ipv4_k3s_controller}
+      ansible_user: ${username}
+
+    k3s_gpu_node:
+      ansible_host: ${ipv4_k3s_gpu_node}
+      ansible_user: ${username}
+
+k3s_controller:
+  hosts:
+    k3s_controller:
+      ansible_host: ${ipv4_k3s_controller}
+      ansible_user: ${username}
+
+
+k3s_workers:
+  hosts:
+    k3s_gpu_node:
+      ansible_host: ${ipv4_k3s_gpu_node}
+      ansible_user: ${username}

@@ -36,3 +36,75 @@
       ansible.builtin.file:
         path: /tmp/registry-parameters.yml
         state: absent
+
+- name: Configure DNS on cluster
+  hosts: k3s
+  become: yes
+
+  tasks:
+  - name: Configure systemd-resolved to use AdGuard DNS
+    ansible.builtin.ini_file:
+      path: /etc/systemd/resolved.conf
+      section: Resolve
+      option: DNS
+      value: "${ipv4_dns}"
+      no_extra_spaces: true
+
+  - name: Configure systemd-resolved fallback DNS
+    ansible.builtin.ini_file:
+      path: /etc/systemd/resolved.conf
+      section: Resolve
+      option: FallbackDNS
+      value: "${ipv4_gateway}"
+      no_extra_spaces: true
+
+  - name: Restart systemd-resolved
+    ansible.builtin.service:
+      name: systemd-resolved
+      state: restarted
+
+
+- name: Add registry as trusted cluster source
+  hosts: k3s
+  become: yes
+
+  tasks:
+  - name: Ensure dir exists
+    ansible.builtin.file:
+        path: /etc/rancher/k3s
+        state: directory
+        owner: root
+        group: root
+        mode: '0755' 
+
+  - name: Create config file
+    ansible.builtin.copy:
+      dest: /etc/rancher/k3s/registries.yaml
+      content: |
+        mirrors:
+          "${jumpbox-hostname}.${tailnet_dns_name}.ts.net:5000":
+            endpoint:
+              - "http://${ipv4_k3s_controller}:5000"
+
+- name: Restart controller
+  hosts: k3s_controller
+  become: yes
+
+  tasks:
+  - name: Restart controller
+    ansible.builtin.service:
+      name: "k3s"
+      enabled: true
+      state: restarted
+
+- name: Restart agent
+  hosts: k3s_workers
+  become: yes
+
+  tasks:
+  - name: Restart agents
+    ansible.builtin.service:
+      name: "k3s-agent"
+      enabled: true
+      state: restarted
+
