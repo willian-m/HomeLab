@@ -198,4 +198,6 @@ module "k8s-generator" {
   tailnet_dns_name = var.tailnet_dns_name
   jumpbox_hostname = var.jumpbox_hostname
   
+  CUPSADMIN_ENCRYPTED = var.CUPSADMIN_ENCRYPTED
+  CUPSPASSWORD_ENCRYPTED = var.CUPSPASSWORD_ENCRYPTED
 }

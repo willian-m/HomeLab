@@ -12,3 +12,20 @@
     - name: Push cups image
       ansible.builtin.shell: |
         docker push ${jumpbox-hostname}.${tailnet_dns_name}.ts.net:5000/cups-epson:latest
+
+
+- name: Deploy cups
+  hosts: 127.0.0.1
+  gather_facts: no
+  connection: local
+
+  tasks:
+
+    - name: Apply cups sealed secret
+      ansible.builtin.shell: kubectl apply -f {{ playbook_dir }}/sealed-secret.yml
+
+    - name: Apply cups deployment
+      ansible.builtin.shell: kubectl apply -f {{ playbook_dir }}/deployment.yml
+
+    - name: Apply cups service
+      ansible.builtin.shell: kubectl apply -f {{ playbook_dir }}/service.yml

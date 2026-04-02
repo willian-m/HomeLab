@@ -20,6 +20,22 @@ resource "local_file" "ansible_playbook_registry" {
   filename = "${path.module}/../../k8s/registry/playbook.yml"
 }
 
+resource "local_file" "cups_sealed_secret" {
+  content = templatefile("${path.module}/cups-sealed-secret.tftpl",{
+    CUPSADMIN_ENCRYPTED=var.CUPSADMIN_ENCRYPTED
+    CUPSPASSWORD_ENCRYPTED=var.CUPSPASSWORD_ENCRYPTED
+  })
+  filename = "${path.module}/../../k8s/cups/sealed-secret.yml"
+}
+
+resource "local_file" "cups_deployment" {
+  content = templatefile("${path.module}/cups-deployment.tftpl",{
+    jumpbox_hostname=var.jumpbox_hostname
+    tailnet_dns_name=var.tailnet_dns_name
+  })
+  filename = "${path.module}/../../k8s/cups/deployment.yml"
+}
+
 resource "local_file" "ansible_playbook_cups" {
   content = templatefile("${path.module}/playbook-cups.tftpl", {
     tailnet_dns_name = var.tailnet_dns_name

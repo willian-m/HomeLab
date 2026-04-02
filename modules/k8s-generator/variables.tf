@@ -51,3 +51,15 @@ variable "ipv4_gateway" {
   type = string
   sensitive = false
 }
+
+variable "CUPSADMIN_ENCRYPTED" {
+  description = "Encrypted admin username for cups"
+  type = string
+  sensitive = true
+}
+
+variable "CUPSPASSWORD_ENCRYPTED" {
+  description = "Encrypted cups password"
+  type = string
+  sensitive = true
+}

@@ -321,3 +321,33 @@ variable "proxmox_root_password" {
   type = string
   sensitive = true
 }
+
+#*******************************************************************************
+# CUPS variable
+#*******************************************************************************
+
+##### Install the SealedSecret CRD and server-side controller into the kube-system namespace:
+# kubectl apply -f https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.36.1/controller.yaml
+
+##### Install the client side
+# curl -OL "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.36.1/kubeseal-0.36.1-linux-amd64.tar.gz"
+# tar -xvzf kubeseal-0.36.1-linux-amd64.tar.gz kubeseal
+# sudo install -m 755 kubeseal /usr/local/bin/kubeseal
+
+##### Generate secrets with
+# kubectl create secret generic cups-credentials \
+# --from-literal=CUPSADMIN=<username> \
+# --from-literal=CUPSPASSWORD=<password> \
+# --dry-run=client -o yaml | kubeseal -o yaml > k8s/cups/sealed-secret.yaml
+
+variable "CUPSADMIN_ENCRYPTED" {
+  description = "Encrypted username for cups"
+  type = string
+  sensitive = true
+}
+
+variable "CUPSPASSWORD_ENCRYPTED" {
+  description = "Encrypted cups password"
+  type = string
+  sensitive = true
+}

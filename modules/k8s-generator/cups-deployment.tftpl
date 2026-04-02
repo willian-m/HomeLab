@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cups
+  namespace: default
+  labels:
+    app: cups
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cups
+  template:
+    metadata:
+      labels:
+        app: cups
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      nodeSelector:
+        kubernetes.io/hostname: k3s-controller
+      containers:
+      - name: cups
+        image: ${jumpbox_hostname}.${tailnet_dns_name}.ts.net:5000/cups-epson:latest
+        envFrom:
+        - secretRef:
+            name: cups-credentials
+        ports:
+        - containerPort: 631
+          name: ipp
+        securityContext:
+          privileged: true
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
