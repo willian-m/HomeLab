@@ -2,8 +2,7 @@
 hostname: k3s-controller
 timezone: America/Sao_Paulo
 users:
-  - user:
-    name: ${username}
+  - name: ${username}
     uid: ${user_uid}
     passwd: ${vm_password}
     groups:
@@ -12,6 +11,15 @@ users:
     ssh_authorized_keys:
       - ${ssh_authorized_key}
     lock_passwd: false
+
+  - name: k3s-storage
+    uid: 200
+    shell: /usr/sbin/nologin
+    lock_passwd: true
+
+groups:
+  - k3s-storage : [k3s-storage]
+
 apt:
   preserve_sources_list: true
   sources:
