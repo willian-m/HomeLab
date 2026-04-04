@@ -29,7 +29,7 @@ apt:
       # If key expires and needs to be updated, update the keyid above with:
       # curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --show-keys --fingerprint --with-colons | awk -F: '/^fpr:/ { print $10 }'
 mounts:
-  - [ "${nfs_server_ip}:omv-storage", "/mnt/nfs-storage", "nfs", "defaults,nofail", "0", "0" ]
+  - [ "${nfs_server_ip}:/mnt/ExternalHardDisk/nfs-shares/k3s-cluster", "/mnt/nfs-storage", "nfs", "defaults,nofail", "0", "0" ]
 package_update: true
 ssh_pwauth: false
 packages:

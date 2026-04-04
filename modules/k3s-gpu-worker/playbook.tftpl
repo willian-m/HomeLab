@@ -122,3 +122,42 @@
       register: delete_gpu_test_pod
       failed_when:
         - delete_gpu_test_pod.rc != 0
+
+  tasks:
+    - name: Remount /mnt/nfs-storage
+      ansible.posix.mount:
+        path: /mnt/nfs-storage
+        state: unmounted
+        state: mounted
+        src: "${nfs_server_ip}:/mnt/ExternalHardDisk/nfs-shares/k3s-cluster"
+        fstype: nfs
+        opts: defaults,nofail,comment=cloudconfig
+
+    - name: Test if NFS share is mounted
+      ansible.builtin.command: mountpoint -q /mnt/nfs-storage
+      register: nfs_mount_check
+      failed_when: nfs_mount_check.rc != 0
+      changed_when: false
+
+    - name: Test that we can create folders on the NFS share
+      ansible.builtin.file:
+        path: /mnt/nfs-storage/testfolder
+        state: directory
+        mode: 0755
+      register: nfs_folder_check
+
+    - name: Test if we can write to the folder in NFS share
+      ansible.builtin.command: touch /mnt/nfs-storage/testfolder/testfile
+      register: nfs_write_check
+      failed_when: nfs_write_check.rc != 0
+      changed_when: false
+
+    - name: Remove test file from NFS share
+      ansible.builtin.file:
+        path: /mnt/nfs-storage/testfolder/testfile
+        state: absent
+
+    - name: Remove test folder from NFS share
+      ansible.builtin.file:
+        path: /mnt/nfs-storage/testfolder
+        state: absent

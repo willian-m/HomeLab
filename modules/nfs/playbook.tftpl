@@ -1,0 +1,47 @@
+---
+- name: Setup nfs on proxmox
+  hosts: proxmox_servers
+
+  tasks:
+    - name: Update apt cache (Debian/Ubuntu)
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+
+    - name: Install NFS server
+      apt:
+        name: nfs-kernel-server
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Create export directory to consolidate all NFS exports
+      file:
+        path: /mnt/ExternalHardDisk/nfs-shares
+        owner: root
+        group: root
+        mode: '0700'
+        state: directory
+
+    - name: Create export directory for k3s cluster
+      file:
+        path: /mnt/ExternalHardDisk/nfs-shares/k3s-cluster
+        owner: 2000
+        group: 2000
+        mode: '0700'
+        state: directory
+
+    - name: Configure export file for NFS share
+      ansible.builtin.copy:
+        dest: /etc/exports
+        content: |
+          /mnt/ExternalHardDisk/nfs-shares/k3s-cluster ${k3s_controller_ip}(rw,sync,no_subtree_check,no_root_squash)
+          /mnt/ExternalHardDisk/nfs-shares/k3s-cluster ${k3s_gpu_node_ip}(rw,sync,no_subtree_check,no_root_squash)
+        mode: '0644'
+        owner: root
+        group: root
+
+    - name: Export NFS shares
+      ansible.builtin.command: exportfs -ra
+      register: exportfs_result
+      failed_when: exportfs_result.rc != 0
+      changed_when: false

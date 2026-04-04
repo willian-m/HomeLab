@@ -9,7 +9,7 @@
         path: /mnt/nfs-storage
         state: unmounted
         state: mounted
-        src: "${nfs_server_ip}:/omv-storage"
+        src: "${nfs_server_ip}:/mnt/ExternalHardDisk/nfs-shares/k3s-cluster"
         fstype: nfs
         opts: defaults,nofail,comment=cloudconfig
 
@@ -19,15 +19,27 @@
       failed_when: nfs_mount_check.rc != 0
       changed_when: false
 
-    - name: Test if NFS share is writable
-      ansible.builtin.command: touch /mnt/nfs-storage/testfile
+    - name: Test that we can create folders on the NFS share
+      ansible.builtin.file:
+        path: /mnt/nfs-storage/testfolder
+        state: directory
+        mode: 0755
+      register: nfs_folder_check
+
+    - name: Test if we can write to the folder in NFS share
+      ansible.builtin.command: touch /mnt/nfs-storage/testfolder/testfile
       register: nfs_write_check
       failed_when: nfs_write_check.rc != 0
       changed_when: false
 
     - name: Remove test file from NFS share
       ansible.builtin.file:
-        path: /mnt/nfs-storage/testfile
+        path: /mnt/nfs-storage/testfolder/testfile
+        state: absent
+
+    - name: Remove test folder from NFS share
+      ansible.builtin.file:
+        path: /mnt/nfs-storage/testfolder
         state: absent
 
 - name: Install k3s on controller
@@ -71,7 +83,7 @@
             - name: nfs-retain
               parameters:
                 server: ${nfs_server_ip}
-                share: omv-storage
+                share: /export/omv-storage
               reclaimPolicy: Retain
               volumeBindingMode: Immediate
               mountOptions:
