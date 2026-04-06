@@ -7,7 +7,9 @@ resource "local_file" "ansible_inventory" {
   filename = "${path.module}/../../k8s/inventory.yml"
 }
 
+#------------ Container Registry
 resource "local_file" "ansible_playbook_registry" {
+  depends_on = [ local_file.ansible_inventory ]
   content = templatefile("${path.module}/playbook-registry.tftpl", {
     registry_node_port = var.registry_node_port
     allocated_registry_storage = var.allocated_registry_storage
@@ -20,6 +22,7 @@ resource "local_file" "ansible_playbook_registry" {
   filename = "${path.module}/../../k8s/registry/playbook.yml"
 }
 
+#------------ CUPS server
 resource "local_file" "cups_sealed_secret" {
   content = templatefile("${path.module}/cups-sealed-secret.tftpl",{
     CUPSADMIN_ENCRYPTED=var.CUPSADMIN_ENCRYPTED
@@ -37,6 +40,11 @@ resource "local_file" "cups_deployment" {
 }
 
 resource "local_file" "ansible_playbook_cups" {
+  depends_on = [
+    local_file.ansible_inventory,
+    local_file.cups_deployment,
+    local_file.cups_sealed_secret
+  ]
   content = templatefile("${path.module}/playbook-cups.tftpl", {
     tailnet_dns_name = var.tailnet_dns_name
     jumpbox-hostname = var.jumpbox_hostname

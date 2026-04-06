@@ -20,6 +20,8 @@
   connection: local
 
   tasks:
+    - name: Create cups namespace
+      ansible.builtin.shell: kubectl create namespace cups --dry-run=client -o yaml | kubectl apply -f -
 
     - name: Apply cups sealed secret
       ansible.builtin.shell: kubectl apply -f {{ playbook_dir }}/sealed-secret.yml

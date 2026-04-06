@@ -338,7 +338,7 @@ variable "proxmox_root_password" {
 # kubectl create secret generic cups-credentials \
 # --from-literal=CUPSADMIN=<username> \
 # --from-literal=CUPSPASSWORD=<password> \
-# --dry-run=client -o yaml | kubeseal -o yaml > k8s/cups/sealed-secret.yaml
+# --dry-run=client -o yaml | kubeseal -o yaml --namespace cups > k8s/cups/sealed-secret.yaml
 
 variable "CUPSADMIN_ENCRYPTED" {
   description = "Encrypted username for cups"

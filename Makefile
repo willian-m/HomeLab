@@ -68,20 +68,12 @@ kubectl:
 	sudo apt-get install -y kubectl
 
 container-registry:
-	helm repo add twuni https://twuni.github.io/docker-registry.helm && \
-	helm repo update && \
-	helm install docker-registry twuni/docker-registry \
-  		--namespace registry \
-  		--create-namespace \
-  		--set persistence.enabled=true \
-  		--set persistence.size=10Gi \
-		--set persistence.storageClass=nfs-retain && \
-	helm upgrade docker-registry twuni/docker-registry \
-		--namespace registry \
-		--set service.type=NodePort \
-		--set service.nodePort=30500
+	terraform apply -target module.k8s-generator.local_file.ansible_playbook_registry && \
+	cd k8s && ansible-playbook -i inventory.yml registry/playbook.yml --ask-become-pass
 
-
+cups:
+	terraform apply -target module.k8s-generator.local_file.ansible_playbook_cups && \
+	cd k8s && ansible-playbook -i inventory.yml cups/playbook.yml
 init:
 	ln -sf ./git_hooks/pre-commit .git/hooks/pre-commit
 	terraform init
