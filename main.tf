@@ -156,8 +156,7 @@ module "k3s_controller" {
   ipv6_gateway = var.ipv6_gateway
 
   dns_server_ip = var.dns_ipv4_address
-  nfs_server_ip = var.omv_ipv4_address
-  omv_username  = var.omv_username
+  nfs_server_ip = var.proxmox_ip
 }
 
 module "k3s_gpu_worker" {
@@ -180,9 +179,8 @@ module "k3s_gpu_worker" {
   ipv6_gateway = var.ipv6_gateway
 
   dns_server_ip = var.dns_ipv4_address
-  nfs_server_ip = var.omv_ipv4_address
-  omv_username  = var.omv_username
-
+  nfs_server_ip = var.proxmox_ip
+  
   gpu_name         = var.gpu_name
   gpu_pci_id       = var.gpu_pci_id
   gpu_device_id    = var.gpu_device_id

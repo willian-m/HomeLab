@@ -89,12 +89,6 @@ variable "nfs_server_ip" {
   sensitive   = false
 }
 
-variable "omv_username" {
-  description = "Username of the OMV user"
-  type        = string
-  sensitive   = false
-}
-
 variable "k3s_token" {
   description = "Token used to register work nodes"
   type        = string

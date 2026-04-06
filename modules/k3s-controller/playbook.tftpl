@@ -83,18 +83,18 @@
             - name: nfs-retain
               parameters:
                 server: ${nfs_server_ip}
-                share: /export/omv-storage
+                share: /mnt/ExternalHardDisk/nfs-shares/k3s-cluster
               reclaimPolicy: Retain
               volumeBindingMode: Immediate
               mountOptions:
-                - nfsvers=3
+                - nfsvers=4.2
 
     - name: Install NFS CSI driver using Helm
       shell: |
         export KUBECONFIG=/home/${username}/.kube/config
         helm repo add csi-driver-nfs https://raw.githubusercontent.com/kubernetes-csi/csi-driver-nfs/master/charts
         helm repo update
-        helm upgrade csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system \
+        helm upgrade --install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace kube-system \
           --version 4.12.0 -f custom-values.yaml
       register: nfs_csi_install
       failed_when: 

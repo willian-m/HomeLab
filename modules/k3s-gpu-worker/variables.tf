@@ -125,12 +125,6 @@ variable "nfs_server_ip" {
   sensitive   = false
 }
 
-variable "omv_username" {
-  description = "Username of the OMV user"
-  type        = string
-  sensitive   = false
-}
-
 variable "gpu_name" {
   description = "Name of the GPU to pass through"
   type        = string
