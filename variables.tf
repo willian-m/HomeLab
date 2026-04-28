@@ -127,59 +127,59 @@ variable "dev_vm_ipv6_address" {
 # OpenMediaVault VMs Variables
 #*******************************************************************************
 
-# variable "omv_net_bridge_interface" {
-#   description = "Name of the network interface which will be used as a bridge for dev VM"
-#   type        = string
-#   sensitive   = false
-# }
+variable "omv_net_bridge_interface" {
+  description = "Name of the network interface which will be used as a bridge for dev VM"
+  type        = string
+  sensitive   = false
+}
 
-# variable "omv_username" {
-#   description = "Username used to access the created dev VM"
-#   type        = string
-#   sensitive   = false
-# }
+variable "omv_username" {
+  description = "Username used to access the created dev VM"
+  type        = string
+  sensitive   = false
+}
 
-# variable "omv_password" {
-#   description = "Hashed password that will be used to escalate privileges on the dev VM. Generate it with `mkpasswd --method=SHA-512 --rounds=500000`"
-#   type        = string
-#   sensitive   = true
-# }
+variable "omv_password" {
+  description = "Hashed password that will be used to escalate privileges on the dev VM. Generate it with `mkpasswd --method=SHA-512 --rounds=500000`"
+  type        = string
+  sensitive   = true
+}
 
-# variable "omv_user_uid" {
-#   description = "UID to be assigned to dev VM user"
-#   type        = number
-#   sensitive   = false
-# }
+variable "omv_user_uid" {
+  description = "UID to be assigned to dev VM user"
+  type        = number
+  sensitive   = false
+}
 
-# variable "omv_debian_base_img_addr" {
-#   description = "Address from where to download the base image of the dev VM"
-#   type        = string
-#   sensitive   = false
-# }
+variable "omv_debian_base_img_addr" {
+  description = "Address from where to download the base image of the dev VM"
+  type        = string
+  sensitive   = false
+}
 
-# variable "omv_ipv4_address" {
-#   description = "Name of the ipv4 address to assign to the dev vm. Includes CIDR notation."
-#   type        = string
-#   sensitive   = false
-# }
+variable "omv_ipv4_address" {
+  description = "Name of the ipv4 address to assign to the dev vm. Includes CIDR notation."
+  type        = string
+  sensitive   = false
+}
 
-# variable "omv_ipv6_address" {
-#   description = "Name of the ipv6 address to assign to the dev vm. Includes CIDR notation."
-#   type        = string
-#   sensitive   = false
-# }
+variable "omv_ipv6_address" {
+  description = "Name of the ipv6 address to assign to the dev vm. Includes CIDR notation."
+  type        = string
+  sensitive   = false
+}
 
-# variable "omv_storage_host_path" {
-#   description = "Path on the Proxmox host to be shared with OMV via VirtioFS"
-#   type        = string
-#   sensitive   = false
-# }
+variable "omv_storage_host_path" {
+  description = "Path on the Proxmox host to be shared with OMV via VirtioFS"
+  type        = string
+  sensitive   = false
+}
 
-# variable "nfs_clients" {
-#   description = "IP address in CIDR notation of the clients that should be allowed to access the share"
-#   type = string
-#   sensitive = false
-# }
+variable "nfs_clients" {
+  description = "IP address in CIDR notation of the clients that should be allowed to access the share"
+  type = string
+  sensitive = false
+}
 
 #*******************************************************************************
 # K3s Controller Variables

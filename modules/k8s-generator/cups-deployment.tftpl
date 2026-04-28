@@ -29,7 +29,10 @@ spec:
         - containerPort: 631
           name: ipp
         securityContext:
-          privileged: true
+          privileged: false
+          capabilities:
+            add:
+              - NET_BIND_SERVICE
         resources:
           requests:
             memory: "64Mi"

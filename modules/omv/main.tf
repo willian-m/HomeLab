@@ -27,21 +27,6 @@ resource "null_resource" "create_user_infrastructure" {
   }
 }
 
-resource "proxmox_virtual_environment_hardware_mapping_dir" "omv_storage" {
-  comment = "Directory for main storage of OMV"
-  name    = "omv-storage"
-  depends_on = [
-    null_resource.create_user_infrastructure,
-  ]
-
-  map = [
-    {
-      node = var.node_name
-      path = var.storage_host_path
-    },
-  ]
-}
-
 resource "proxmox_virtual_environment_file" "user_data_cloud_init_config" {
   content_type = "snippets"
   datastore_id = "local"
@@ -86,16 +71,7 @@ resource "proxmox_virtual_environment_vm" "omv_vm" {
     interface    = "virtio0"
     iothread     = true
     discard      = "on"
-    size         = 16
-  }
-
-  # Mount dev-projects 
-  virtiofs {
-    mapping      = proxmox_virtual_environment_hardware_mapping_dir.omv_storage.id
-    cache        = "always"
-    direct_io    = true
-    expose_acl   = true
-    expose_xattr = true
+    size         = 600
   }
 
   initialization {

@@ -88,6 +88,14 @@
               volumeBindingMode: Immediate
               mountOptions:
                 - nfsvers=4.2
+            - name: nfs-local-lvm
+              parameters:
+                server: ${nfs_omv}
+                share: /exports/local-lvm
+              reclaimPolicy: Retain
+              volumeBindingMode: Immediate
+              mountOptions:
+                - nfsvers=4
 
     - name: Install NFS CSI driver using Helm
       shell: |

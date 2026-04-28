@@ -80,29 +80,29 @@ module "dns" {
   ipv6_gateway = var.ipv6_gateway
 }
 
-# module "omv" {
-#   source = "./modules/omv"
+module "omv" {
+  source = "./modules/omv"
 
-#   node_name            = var.node_name
-#   username             = var.omv_username
-#   user_uid             = var.omv_user_uid
-#   debian_base_img_addr = var.omv_debian_base_img_addr
-#   vm_password          = var.omv_password
-#   public_key_path      = var.public_key_path
-#   net_bridge_interface = var.omv_net_bridge_interface
-#   proxmox_host         = var.proxmox_host
-#   tailscale_auth_key   = var.tailscale_auth_key
-#   nfs_clients          = var.nfs_clients
+  node_name            = var.node_name
+  username             = var.omv_username
+  user_uid             = var.omv_user_uid
+  debian_base_img_addr = var.omv_debian_base_img_addr
+  vm_password          = var.omv_password
+  public_key_path      = var.public_key_path
+  net_bridge_interface = var.omv_net_bridge_interface
+  proxmox_host         = var.proxmox_host
+  tailscale_auth_key   = var.tailscale_auth_key
+  nfs_clients          = var.nfs_clients
 
-#   ipv4_address = var.omv_ipv4_address
-#   ipv6_address = var.omv_ipv6_address
-#   ipv4_gateway = var.ipv4_gateway
-#   ipv6_gateway = var.ipv6_gateway
+  ipv4_address = var.omv_ipv4_address
+  ipv6_address = var.omv_ipv6_address
+  ipv4_gateway = var.ipv4_gateway
+  ipv6_gateway = var.ipv6_gateway
 
-#   dns_server_ip     = var.dns_ipv4_address
-#   storage_host_path = var.omv_storage_host_path
+  dns_server_ip     = var.dns_ipv4_address
+  storage_host_path = var.omv_storage_host_path
 
-# }
+}
 
 provider "proxmox" {
   alias    = "root"

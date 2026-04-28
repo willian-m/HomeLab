@@ -52,6 +52,7 @@
   vars:
     target_user: "${username}"
     nfs_clients: "${nfs_clients}"
+    nfs_export_dir: "/exports/local-lvm"
 
   tasks:
      # Update package cache
@@ -83,7 +84,7 @@
 
     - name: Ensure storage directory has correct permissions
       file:
-        path: "/home/{{ target_user }}/omv-storage"
+        path: "{{ nfs_export_dir }}"
         owner: "{{ target_user }}"
         group: "{{ target_user }}"
         mode: '0775'
@@ -97,8 +98,8 @@
         # Try to create the bind mount entry; if it already exists, fetch its UUID
         RESULT=$(sudo omv-rpc "FsTab" "set" "{
           \"uuid\": \"fa4b1c66-ef79-11e5-87a0-0002b3a176b4\",
-          \"fsname\": \"/home/{{ target_user }}/omv-storage\",
-          \"dir\": \"/home/{{ target_user }}/omv-storage\",
+          \"fsname\": \"{{ nfs_export_dir }}\",
+          \"dir\": \"{{ nfs_export_dir }}\",
           \"type\": \"none\",
           \"opts\": \"bind,nofail\",
           \"freq\": 0,
@@ -107,7 +108,7 @@
 
         if [ "$(echo $RESULT | jq -r '.error')" != null ]; then
           # Retrieve existing UUID
-          echo $(sudo omv-confdbadm read "conf.system.filesystem.mountpoint" | jq '.[] | select(.fsname == "/home/wmatioli/omv-storage") | .uuid')
+          echo $(sudo omv-confdbadm read "conf.system.filesystem.mountpoint" | jq '.[] | select(.fsname == "{{ nfs_export_dir }}") | .uuid')
           exit 0
         fi
         echo "$(echo $RESULT | jq -r '.uuid')"
