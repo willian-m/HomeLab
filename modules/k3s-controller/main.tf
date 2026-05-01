@@ -115,6 +115,7 @@ resource "local_file" "ansible_playbook_k3s_controller" {
     username           = var.username
     nfs_server_ip      = split("/",var.nfs_server_ip)[0]
     k3s_token          = var.k3s_token
+    nfs_omv            = var.nfs_server_ip
   })
 
   filename = "${path.module}/../../ansible/playbooks/k3s-controller.yml"
