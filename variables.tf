@@ -323,6 +323,39 @@ variable "proxmox_root_password" {
 }
 
 #*******************************************************************************
+# Openclaw VM Variables
+#*******************************************************************************
+
+variable "openclaw_net_bridge_interface" {
+  description = "Name of the network interface which will be used as a bridge for openclaw VM"
+  type        = string
+  sensitive   = false
+}
+
+variable "openclaw_user_uid" {
+  description = "UID to be assigned to openclaw VM user"
+  type        = number
+  sensitive   = false
+}
+variable "openclaw_vm_password" {
+  description = "Hashed password that will be used to escalate privileges on the VM. Generate it with `mkpasswd --method=SHA-512 --rounds=500000`"
+  type        = string
+  sensitive   = true
+}
+
+variable "openclaw_ipv4_address" {
+  description = "Name of the ipv4 address to assign to the openclaw. Includes CIDR notation."
+  type        = string
+  sensitive   = false
+}
+
+variable "openclaw_ipv6_address" {
+  description = "Name of the ipv6 address to assign to the openclaw vm. Includes CIDR notation."
+  type        = string
+  sensitive   = false
+}
+
+#*******************************************************************************
 # CUPS variable
 #*******************************************************************************
 

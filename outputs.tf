@@ -32,3 +32,13 @@ output "k3s_remote_access_instructions" {
     export KUBECONFIG=$HOME/.kube/config
   EOT
 }
+
+output "openclaw_ssh_command" {
+  description = "SSH command to connect to openclaw"
+  value       = module.openclaw.openclaw_ssh_command
+}
+
+output "openclaw_message" {
+  description = "A message instructing the user next steps for setup openclaw"
+  value       = module.openclaw.openclaw_message
+}

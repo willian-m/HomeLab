@@ -48,6 +48,12 @@ jumpbox:
 	 -target module.jumpbox.null_resource.ansible_provision_jumpbox \
 	-target module.jumpbox.null_resource.ansible_provision_jumpbox
 
+openclaw-vm:
+	terraform apply -target module.openclaw.proxmox_virtual_environment_vm.openclaw_vm
+
+destroy-openclaw-vm:
+	terraform destroy -target module.openclaw.proxmox_virtual_environment_vm.openclaw_vm
+
 destroy-jumpbox:
 	terraform destroy -target module.jumpbox.null_resource.ansible_provision_jumpbox \
 	-target module.jumpbox.proxmox_virtual_environment_container.jumpbox

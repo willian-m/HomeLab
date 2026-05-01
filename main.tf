@@ -104,6 +104,26 @@ module "omv" {
 
 }
 
+module "openclaw" {
+  source = "./modules/openclaw"
+
+  node_name            = var.node_name
+  user_uid             = var.openclaw_user_uid
+  vm_password          = var.openclaw_vm_password
+  ubuntu_base_img_addr = var.dev_vm_ubuntu_base_img_addr
+  public_key_path      = var.public_key_path
+  net_bridge_interface = var.openclaw_net_bridge_interface
+  proxmox_host         = var.proxmox_host
+  tailscale_auth_key   = var.tailscale_auth_key
+
+  ipv4_address = var.openclaw_ipv4_address
+  ipv6_address = var.openclaw_ipv6_address
+  ipv4_gateway = var.ipv4_gateway
+  ipv6_gateway = var.ipv6_gateway
+
+}
+
+
 provider "proxmox" {
   alias    = "root"
   endpoint = var.proxmox_endpoint

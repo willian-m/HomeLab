@@ -1,0 +1,51 @@
+#cloud-config
+hostname: openclaw
+timezone: America/Sao_Paulo
+users:
+  - user:
+    name: dev-setup
+    passwd: ${vm_password}
+    groups:
+      - docker
+      - sudo
+    shell: /bin/bash
+    ssh_authorized_keys:
+      - ${ssh_authorized_key}
+    lock_passwd: false
+  - user:
+    name: openclaw
+    uid: ${user_uid}
+    shell: /bin/bash
+    lock_passwd: true
+apt:
+  preserve_sources_list: true
+  sources:
+    docker.list:
+      source: deb [arch=amd64] https://download.docker.com/linux/ubuntu $RELEASE stable
+      keyid: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+      # If key expires and needs to be updated, update the keyid above with:
+      # curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --show-keys --fingerprint --with-colons | awk -F: '/^fpr:/ { print $10 }'
+
+mounts:
+  - [ 'openclawData', '/home/openclaw', 'virtiofs', 'rw,default', '0', '0' ]
+package_update: true
+ssh_pwauth: false
+packages:
+  - ansible
+  - containerd.io
+  - curl
+  - docker-buildx-plugin
+  - docker-ce
+  - docker-ce-cli
+  - docker-compose-plugin
+  - net-tools
+  - qemu-guest-agent
+  - sudo
+  - vim
+  - virtiofsd
+runcmd:
+  - systemctl enable qemu-guest-agent
+  - systemctl start qemu-guest-agent
+  - chown openclaw:openclaw /home/openclaw
+  - chown -R openclaw:openclaw /home/openclaw
+  - echo "done" > /tmp/cloud-config.done
