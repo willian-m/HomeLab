@@ -1,0 +1,45 @@
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: immich-photos-storage
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs-retain
+  claimRef:
+    namespace: immich
+    name: pvc-immich-photos
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: immich-photos-storage  # must be unique across all PVs
+    volumeAttributes:
+      server: 10.0.0.10
+      share: /mnt/ExternalHardDisk/nfs-shares/k3s-cluster/immich/photos
+
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: immich-db
+spec:
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: nfs-retain
+  claimRef:
+    namespace: immich
+    name: pvc-immich-db
+  csi:
+    driver: nfs.csi.k8s.io
+    volumeHandle: immich-db  # must be unique across all PVs
+    volumeAttributes:
+      server: 10.0.0.10
+      share: /mnt/ExternalHardDisk/nfs-shares/k3s-cluster/immich/database

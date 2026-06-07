@@ -1,0 +1,31 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: immich-server
+  namespace: immich
+  labels:
+    app: immich
+spec:
+  selector:
+    app: immich
+  ports:
+    - name: "2283"
+      port: 2283
+      targetPort: 2283
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: immich-machine-learning
+  namespace: immich
+spec:
+  selector:
+    app: immich-machine-learning
+  ports:
+    - name: "3003"
+      port: 3003
+      targetPort: 3003
+  type: ClusterIP

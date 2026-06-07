@@ -1,0 +1,14 @@
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - 00-namespace.yml
+  - 01-pv.yml
+  - 02-pvc.yml
+  - 03-sealed-secret.yml
+  - 04-config-map.yml
+  - 05-deployment.yml
+  - 06-service.yml
+  - 07-ingress.yml
+  - 08-rbac.yml
