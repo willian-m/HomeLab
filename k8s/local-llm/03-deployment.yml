@@ -121,7 +121,10 @@ spec:
         - name: OLLAMA_BASE_URL
           value: "http://ollama:11434"
         - name: WEBUI_SECRET_KEY
-          value: "Penny-Collar-Vitalize-Reselect-Escalate-Perennial-Opt-Certify-Affection-Throwback-Uncrown-Conductor-Rewash-Lucrative6-Cupped-Nutshell-Walrus-Premises-Yo-yo-Unpaved"
+          valueFrom:
+            secretKeyRef:
+              name: openwebui-credentials
+              key: WEBUI_SECRET_KEY
         volumeMounts:
           - name: open-webui-data
             mountPath: /app/backend/data
