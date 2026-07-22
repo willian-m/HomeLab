@@ -1,0 +1,28 @@
+---
+# Template. Do NOT edit the rendered 02-configmap.yml directly and do NOT
+# commit it. Fill in config.env and run ./gen-config.sh to render it, which
+# substitutes the tunnel ID and hostname from config.env.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudflared-config
+  namespace: cloudflared
+data:
+  config.yaml: |
+    # Tunnel ID from the Cloudflare dashboard.
+    # Must match the TunnelID inside the sealed credentials.json.
+    tunnel: __TUNNEL_ID__
+    credentials-file: /etc/cloudflared/creds/credentials.json
+
+    # Expose the metrics/health endpoint (used by the liveness probe).
+    metrics: 0.0.0.0:2000
+    no-autoupdate: true
+
+    # Ingress rules: map a public hostname to an in-cluster Service.
+    # This is the authoritative routing config (locally-managed tunnel), so
+    # leave "Public Hostnames" empty in the Cloudflare dashboard.
+    ingress:
+      - hostname: __DOMAIN__
+        service: http://immich-server.immich.svc.cluster.local:2283
+      # Catch-all: anything not matched above returns 404 (required last rule).
+      - service: http_status:404
