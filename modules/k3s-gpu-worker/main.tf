@@ -65,7 +65,7 @@ resource "proxmox_virtual_environment_vm" "k3s_gpu_worker_vm" {
   }
 
   memory {
-    dedicated = 32768
+    dedicated = 20480
   }
 
   disk {
