@@ -79,14 +79,14 @@ resource "proxmox_virtual_environment_vm" "ubuntu_dev_vm" {
     dedicated = 8192
   }
 
-  # 32 GB disk imported from cloud image
+  # Disk imported from cloud image, then grown to 128 GB
   disk {
     datastore_id = "local-lvm"
     import_from  = proxmox_virtual_environment_download_file.ubuntu_cloud_image.id
     interface    = "virtio0"
     iothread     = true
     discard      = "on"
-    size         = 32
+    size         = 128
   }
 
   # Mount dev-projects 
